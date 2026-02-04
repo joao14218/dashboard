@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto de Venda - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+        .sales-layout{display:grid;grid-template-columns:2fr 1fr;gap:30px;height:calc(100vh - 80px)}
+        .product-grid-wrapper, .cart-section{background-color:var(--dark-card);padding:20px;border-radius:10px;display:flex;flex-direction:column}
+        .product-grid-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+        .add-product-btn{background-color:var(--primary-color);color:#000;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer}
+        .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px;overflow-y:auto;padding-right:10px}
+        .product-card{position:relative;background-color:#3a3a3a;border-radius:8px;text-align:center;padding:15px;padding-top:40px;cursor:pointer;transition:transform .2s,opacity .3s}
+        .product-card.unavailable{opacity:0.5;cursor:not-allowed}
+        .product-card img{width:100%;height:80px;object-fit:cover;border-radius:5px;margin-bottom:10px}
+        .product-card h4{font-size:1rem;margin-bottom:5px}
+        .product-card p{font-size:1.1rem;color:var(--primary-color);font-weight:bold}
+        .product-management{position:absolute;top:5px;right:5px;display:flex;gap:5px;background-color:rgba(44,44,44,0.7);padding:5px;border-radius:8px}
+        .manage-btn{background:none;border:none;color:var(--text-light);font-size:1.1rem;cursor:pointer}.manage-btn.delete:hover{color:var(--danger-color)}.manage-btn.toggle-off{color:var(--text-muted)}
+        .cart-section h3{text-align:center;margin-bottom:15px;padding-bottom:15px; border-bottom: 1px solid var(--border-color);}
+        #cart-list{list-style:none;flex-grow:1;overflow-y:auto}
+        .cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #444}
+        .remove-from-cart-btn{background:none;border:none;color:var(--danger-color);font-size:1.2rem;cursor:pointer;font-weight:bold}
+        .cart-total{margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);text-align:right}
+        .checkout-btn{width:100%;background-color:var(--success-color);color:white;padding:15px;border:none;border-radius:8px;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:15px}
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden}.modal-overlay.active{opacity:1;visibility:visible}
+        .modal-content{background-color:var(--dark-card);padding:30px;border-radius:10px;width:100%;max-width:400px}
+        .form-group{margin-bottom:15px}.form-group label{display:block;margin-bottom:5px; font-weight: 600;}.form-group input{width:100%;padding:10px;border-radius:5px;background-color:#3a3a3a;border:1px solid var(--border-color);color:var(--text-light)}
+        .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+        .modal-actions button{padding:10px 20px;border-radius:5px;border:none;cursor:pointer;font-weight:600}.modal-actions .save-btn{background-color:var(--primary-color);color:#000}.modal-actions .cancel-btn{background-color:#555;color:white}
+        .hidden{display:none}
+        .modal-photo-uploader label{display:block;width:120px;height:120px;border:2px dashed var(--border-color);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;margin:auto}.modal-photo-uploader i{font-size:2.5rem}
+        #product-photo-preview img{width:100%;height:100%;object-fit:cover}
+
+        /* Comanda System Styles */
+        .comanda-list-wrapper { margin-bottom: 20px; }
+        .comanda-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .comanda-btn { background-color: #3a3a3a; color: var(--text-light); border: 2px solid var(--border-color); padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all 0.3s; }
+        .comanda-btn.active { background-color: var(--primary-color); color: #000; border-color: var(--primary-color); font-weight: bold; }
+        .new-comanda-btn { background-color: transparent; color: var(--primary-color); border: 2px dashed var(--primary-color); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .new-comanda-btn:hover { background-color: var(--primary-color); color: #000; }
+        #active-comanda-title { min-height: 27px; }
+
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="sales-layout">
+                <div class="product-grid-wrapper">
+                    <div class="product-grid-header">
+                        <h2>Produtos</h2>
+                        <button class="add-product-btn" id="add-product-btn">Adicionar Produto</button>
+                    </div>
+                    <div class="product-grid" id="product-grid"></div>
+                </div>
+                <div class="cart-section">
+                    <div class="comanda-list-wrapper">
+                        <div class="comanda-list" id="comanda-list">
+                            <!-- Comanda buttons will be injected here -->
+                        </div>
+                    </div>
+                    <h3 id="active-comanda-title">Nenhuma comanda selecionada</h3>
+                    
+                    <ul id="cart-list"></ul>
+                    <div class="cart-total">
+                        <h4 id="cart-total">Total: R$ 0,00</h4>
+                    </div>
+                    <button class="checkout-btn" id="checkout-btn">Registrar Venda</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal-content">
+            <h3>Adicionar Novo Produto</h3>
+            <form id="add-product-form">
+                <div class="form-group"><label for="product-name">Nome</label><input type="text" id="product-name" required></div>
+                <div class="form-group"><label for="product-price">Preço (R$)</label><input type="number" id="product-price" step="0.01" required></div>
+                <div class="form-group"><label>Foto</label><div class="modal-photo-uploader"><label for="product-photo-input"><div id="product-photo-preview"><i class="ph ph-camera-plus"></i><span>Adicionar Foto</span></div></label><input type="file" id="product-photo-input" accept="image/*" class="hidden"></div></div>
+                <div class="modal-actions"><button type="button" class="cancel-btn" id="cancel-add-product">Cancelar</button><button type="submit" class="save-btn">Salvar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productGrid = document.getElementById('product-grid');
+            const cartList = document.getElementById('cart-list');
+            const cartTotalEl = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const comandaListEl = document.getElementById('comanda-list');
+            const activeComandaTitleEl = document.getElementById('active-comanda-title');
+            
+            const addProductModal = document.getElementById('add-product-modal');
+            const addProductBtn = document.getElementById('add-product-btn');
+            const cancelAddProductBtn = document.getElementById('cancel-add-product');
+            const addProductForm = document.getElementById('add-product-form');
+            const productPhotoInput = document.getElementById('product-photo-input');
+            const productPhotoPreview = document.getElementById('product-photo-preview');
+
+            let products = JSON.parse(localStorage.getItem('products')) || [ { id: 1, name: 'Água Mineral', price: 3.00, image: 'https://placehold.co/150x100/2c2c2c/f0f0f0?text=Agua', available: true }, { id: 2, name: 'Isotônico', price: 5.00, image: 'https://placehold.co/150x100/2c2c2c/f0f0f0?text=Isotonico', available: true }, { id: 3, name: 'Açaí (Copo)', price: 12.00, image: 'https://placehold.co/150x100/2c2c2c/f0f0f0?text=Acai', available: true }, ];
+            let openComandas = JSON.parse(localStorage.getItem('openComandas')) || [];
+            let activeComandaId = null;
+            
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            function saveProducts() { localStorage.setItem('products', JSON.stringify(products)); }
+            function saveOpenComandas() { localStorage.setItem('openComandas', JSON.stringify(openComandas)); }
+
+            function renderProducts() {
+                productGrid.innerHTML = '';
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.dataset.id = product.id;
+                    if (!product.available) card.classList.add('unavailable');
+                    const availabilityIcon = product.available ? 'ph-eye' : 'ph-eye-slash';
+                    const availabilityClass = product.available ? 'toggle-on' : 'toggle-off';
+                    card.innerHTML = `<div class="product-management"><button class="manage-btn ${availabilityClass}" data-action="toggle"><i class="ph-fill ${availabilityIcon}"></i></button><button class="manage-btn delete" data-action="delete"><i class="ph-fill ph-trash"></i></button></div><div class="product-card-body"><img src="${product.image || 'https://placehold.co/150x100/2c2c2c/f0f0f0?text=Produto'}" alt="${product.name}"><h4>${product.name}</h4><p>R$ ${product.price.toFixed(2)}</p></div>`;
+                    productGrid.appendChild(card);
+                });
+            }
+
+            function renderComandaList() {
+                comandaListEl.innerHTML = '';
+                openComandas.forEach(comanda => {
+                    const btn = document.createElement('button');
+                    btn.className = 'comanda-btn';
+                    btn.textContent = comanda.clientName;
+                    btn.dataset.id = comanda.id;
+                    if (comanda.id === activeComandaId) {
+                        btn.classList.add('active');
+                    }
+                    comandaListEl.appendChild(btn);
+                });
+                const newComandaBtn = document.createElement('button');
+                newComandaBtn.className = 'new-comanda-btn';
+                newComandaBtn.textContent = '+ Nova Comanda';
+                newComandaBtn.id = 'new-comanda-btn';
+                comandaListEl.appendChild(newComandaBtn);
+            }
+
+            function renderActiveComanda() {
+                const activeComanda = openComandas.find(c => c.id === activeComandaId);
+                if (!activeComanda) {
+                    cartList.innerHTML = '<li style="text-align:center; color:var(--text-muted);">Selecione ou crie uma comanda.</li>';
+                    cartTotalEl.textContent = 'Total: R$ 0,00';
+                    activeComandaTitleEl.textContent = 'Nenhuma comanda selecionada';
+                    return;
+                }
+                activeComandaTitleEl.textContent = `Comanda: ${activeComanda.clientName}`;
+                cartList.innerHTML = '';
+                let total = 0;
+                if(activeComanda.items.length === 0){
+                    cartList.innerHTML = '<li style="text-align:center; color:var(--text-muted);">Comanda vazia</li>';
+                } else {
+                    activeComanda.items.forEach((item, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'cart-item';
+                        listItem.innerHTML = `<span>${item.name} - R$ ${item.price.toFixed(2)}</span><button class="remove-from-cart-btn" data-index="${index}">&times;</button>`;
+                        cartList.appendChild(listItem);
+                        total += item.price;
+                    });
+                }
+                cartTotalEl.textContent = `Total: R$ ${total.toFixed(2)}`;
+            }
+
+            function addToActiveComanda(productId) {
+                if (!activeComandaId) {
+                    alert('Por favor, crie ou selecione uma comanda primeiro!');
+                    return;
+                }
+                const product = products.find(p => p.id === productId);
+                const activeComanda = openComandas.find(c => c.id === activeComandaId);
+                if (product && activeComanda && product.available) {
+                    activeComanda.items.push(product);
+                    saveOpenComandas();
+                    renderActiveComanda();
+                }
+            }
+
+            function removeFromActiveComanda(itemIndex) {
+                 const activeComanda = openComandas.find(c => c.id === activeComandaId);
+                 if(activeComanda) {
+                    activeComanda.items.splice(itemIndex, 1);
+                    saveOpenComandas();
+                    renderActiveComanda();
+                 }
+            }
+
+            // --- Event Listeners ---
+            
+            comandaListEl.addEventListener('click', (e) => {
+                const target = e.target;
+                if(target.id === 'new-comanda-btn') {
+                    const clientName = prompt('Nome do Cliente ou Número da Mesa:');
+                    if(clientName && clientName.trim() !== '') {
+                        const newComanda = { id: Date.now(), clientName: clientName.trim(), items: [] };
+                        openComandas.push(newComanda);
+                        activeComandaId = newComanda.id;
+                        saveOpenComandas();
+                        renderComandaList();
+                        renderActiveComanda();
+                    }
+                } else if (target.classList.contains('comanda-btn')) {
+                    activeComandaId = Number(target.dataset.id);
+                    renderComandaList();
+                    renderActiveComanda();
+                }
+            });
+
+            productGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('.product-card');
+                if (!card) return;
+                const productId = Number(card.dataset.id);
+                const actionBtn = e.target.closest('.manage-btn');
+                if(actionBtn) {
+                    const action = actionBtn.dataset.action;
+                    if(action === 'delete') {
+                        if (confirm('Tem certeza?')) {
+                            products = products.filter(p => p.id !== productId);
+                            saveProducts(); renderProducts();
+                        }
+                    } else if (action === 'toggle') {
+                        const product = products.find(p => p.id === productId);
+                        if (product) {
+                            product.available = !product.available;
+                            saveProducts(); renderProducts();
+                        }
+                    }
+                } else {
+                    addToActiveComanda(productId);
+                }
+            });
+
+            cartList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-from-cart-btn')) {
+                    removeFromActiveComanda(parseInt(e.target.dataset.index, 10));
+                }
+            });
+
+            checkoutBtn.addEventListener('click', () => {
+                const activeComanda = openComandas.find(c => c.id === activeComandaId);
+                if(!activeComanda || activeComanda.items.length === 0) {
+                    alert('Selecione uma comanda com itens para registrar a venda.');
+                    return;
+                }
+                const total = activeComanda.items.reduce((sum, item) => sum + item.price, 0);
+                const newSale = { id: Date.now(), date: getTodayDateString(), client: activeComanda.clientName, total: total, items: activeComanda.items };
+                const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+                salesHistory.push(newSale);
+                localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+                
+                openComandas = openComandas.filter(c => c.id !== activeComandaId);
+                activeComandaId = null;
+                saveOpenComandas();
+                
+                alert(`Venda para "${newSale.client}" registrada! Total: R$ ${total.toFixed(2)}`);
+                renderComandaList();
+                renderActiveComanda();
+            });
+
+            // ... (modal listeners remain the same)
+            addProductBtn.addEventListener('click', () => addProductModal.classList.add('active'));
+            cancelAddProductBtn.addEventListener('click', () => { addProductForm.reset(); productPhotoPreview.innerHTML = `<i class="ph ph-camera-plus"></i><span>Adicionar Foto</span>`; addProductModal.classList.remove('active'); });
+            addProductModal.addEventListener('click', (e) => { if(e.target === addProductModal) addProductModal.classList.remove('active'); });
+            productPhotoInput.addEventListener('change', () => { const file = productPhotoInput.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { productPhotoPreview.innerHTML = `<img src="${event.target.result}" alt="Preview">`; }; reader.readAsDataURL(file); } });
+            addProductForm.addEventListener('submit', (e) => { e.preventDefault(); const name = document.getElementById('product-name').value; const price = parseFloat(document.getElementById('product-price').value); const photoFile = productPhotoInput.files[0]; const saveNewProduct = (imageData) => { products.push({ id: Date.now(), name, price, image: imageData || '', available: true }); saveProducts(); renderProducts(); addProductForm.reset(); productPhotoPreview.innerHTML = `<i class="ph ph-camera-plus"></i><span>Adicionar Foto</span>`; addProductModal.classList.remove('active'); }; if (name && price > 0) { if (photoFile) { const reader = new FileReader(); reader.onloadend = () => saveNewProduct(reader.result); reader.readAsDataURL(photoFile); } else saveNewProduct(null); } });
+            
+            // Initial Render
+            renderProducts();
+            renderComandaList();
+            renderActiveComanda();
+        });
+    </script>
+</body>
+</html>
+

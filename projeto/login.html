@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Arena Louzada</title>
+    <style>
+        :root{--primary-color:#ffc400;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--border-color:#444;}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{display:flex;justify-content:center;align-items:center;min-height:100vh;background-color:var(--dark-bg);color:var(--text-light)}
+        .login-card{background-color:var(--dark-card);padding:40px;border-radius:10px;width:100%;max-width:400px;text-align:center;animation:fadeIn .5s ease-out}
+        @keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+        .login-header img{width:100px;height:100px;border-radius:50%;margin-bottom:10px;border:2px solid var(--primary-color)}
+        .login-header h1{margin-bottom:20px}
+        .form-group{margin-bottom:20px;text-align:left}
+        .form-group label{display:block;margin-bottom:8px;font-weight:600}
+        .form-group input{width:100%;padding:12px;border-radius:8px;background-color:#3a3a3a;border:1px solid var(--border-color);color:var(--text-light);font-size:1rem}
+        .login-btn{width:100%;padding:15px;border:none;border-radius:8px;background-color:var(--primary-color);color:#000;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:background-color .3s}
+        .error-message{color:#e74c3c;margin-top:15px;font-weight:600;min-height:20px}
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNV8dxYF7dGp6TSUvr5KLLddCultBUPuo8XA&s" alt="Logo Arena Louzada">
+            <h1>ARENA LOUZADA</h1>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" required>
+            </div>
+            <p id="error-message" class="error-message"></p>
+            <button type="submit" class="login-btn">Entrar</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message');
+
+            function createDefaultAdmin() {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const adminExists = users.some(user => user.username === 'admin');
+                if (!adminExists) {
+                    users.push({ 
+                        id: 1, // ID fixo para o admin principal
+                        username: 'admin', 
+                        password: 'admin', 
+                        role: 'CEO' 
+                    });
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+            createDefaultAdmin();
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const foundUser = users.find(user => user.username === username && user.password === password);
+
+                if (foundUser) {
+                    foundUser.loginTimestamp = Date.now(); 
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+                    
+                    const redirectMap = {
+                        'CEO': 'dashboard.html',
+                        'Administrador': 'dashboard.html',
+                        'Professor': 'alunos.html',
+                        'Vendedor': 'vendas.html'
+                    };
+                    
+                    const redirectUrl = redirectMap[foundUser.role] || 'login.html';
+                    window.location.href = redirectUrl;
+
+                } else {
+                    errorMessage.textContent = 'Usuário ou senha inválidos.';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light);transition:opacity .4s ease-out}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        
+        /* ESTILOS ADICIONADOS */
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+        
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto;animation:slideUpFadeIn .6s ease-out forwards}@keyframes slideUpFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .dashboard-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px}
+        .summary-card-link{text-decoration:none;color:inherit}
+        .summary-card{background-color:var(--dark-card);padding:25px;border-radius:10px;border-left:5px solid var(--primary-color); transition: background-color 0.3s;}.summary-card:hover{background-color:#3a3a3a}
+        .summary-card i{font-size:2.5rem;color:var(--primary-color);margin-bottom:15px}.summary-card h3{color:var(--text-muted);margin-bottom:5px;font-size:1rem;text-transform:uppercase}
+        .summary-card p{font-size:2rem;font-weight:bold;color:var(--text-light)}
+        .summary-card.danger { border-left-color: var(--danger-color); }
+        .summary-card.danger i { color: var(--danger-color); }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <h1>Dashboard</h1>
+            <p style="color: var(--text-muted); font-size: 1.2rem; margin-top:-5px; margin-bottom: 30px;">Resumo das atividades de hoje</p>
+            <div class="dashboard-summary">
+                <div class="summary-card">
+                    <i class="ph-fill ph-chart-line-up"></i>
+                    <h3>Faturamento de Hoje</h3>
+                    <p id="faturamento-hoje">R$ 0,00</p>
+                </div>
+                <div class="summary-card">
+                    <i class="ph-fill ph-list-checks"></i>
+                    <h3>Vendas de Hoje</h3>
+                    <p id="vendas-hoje">0</p>
+                </div>
+                <div class="summary-card">
+                    <i class="ph-fill ph-student"></i>
+                    <h3>Presença Diária</h3>
+                    <p id="presenca-hoje">0</p>
+                </div>
+                 <div class="summary-card">
+                    <i class="ph-fill ph-chalkboard-teacher"></i>
+                    <h3>Aulas Registradas Hoje</h3>
+                    <p id="aulas-hoje">0</p>
+                </div>
+                 <a href="alunos.html?filtro=vencido" class="summary-card-link">
+                    <div class="summary-card danger">
+                        <i class="ph-fill ph-warning-circle"></i>
+                        <h3>Mensalidades Abertas</h3>
+                        <p id="mensalidades-abertas">0</p>
+                    </div>
+                 </a>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function loadDashboardData() {
+                const todayString = getTodayDateString();
+                
+                const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+                const salesToday = salesHistory.filter(sale => sale.date === todayString);
+                const faturamentoHoje = salesToday.reduce((sum, sale) => sum + sale.total, 0);
+                document.getElementById('faturamento-hoje').textContent = `R$ ${faturamentoHoje.toFixed(2).replace('.', ',')}`;
+                document.getElementById('vendas-hoje').textContent = salesToday.length;
+
+                const presencas = JSON.parse(localStorage.getItem('presencas')) || [];
+                const presencasHoje = presencas[todayString] || [];
+                document.getElementById('presenca-hoje').textContent = presencasHoje.length;
+                
+                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
+                const aulasHoje = aulas[todayString] || [];
+                document.getElementById('aulas-hoje').textContent = aulasHoje.length;
+
+                const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+                let mensalidadesAbertas = 0;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                alunos.forEach(aluno => {
+                    if (aluno.proximoPagamento) {
+                        const dueDate = new Date(aluno.proximoPagamento + 'T12:00:00Z');
+                        if (dueDate < today) {
+                            mensalidadesAbertas++;
+                        }
+                    }
+                });
+                document.getElementById('mensalidades-abertas').textContent = mensalidadesAbertas;
+            }
+
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html>
+

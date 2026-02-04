@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Aluno - CT Futevôlei</title>
+    <script src="auth.js"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--success-color:#28a745;--danger-color:#181616;--warning-color:#ffc107;--background-gradient:linear-gradient(135deg, #222222 0%, #000000 50%, #222222 100%);--card-background:#ffffff;--text-color:#333;--box-shadow:0 10px 25px rgba(0, 0, 0, 0.1);--border-color:#ddd}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:var(--background-gradient);padding:20px;transition:opacity 0.4s ease-out}.card-container{width:100%;max-width:800px;background-color:var(--card-background);border-radius:15px;box-shadow:var(--box-shadow);padding:40px}
+        .logo-container{text-align:center;margin-bottom:20px}.logo-container img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #eee;box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+        .card-header{text-align:center;margin-bottom:30px}.card-header h1{color:var(--text-color);margin-bottom:10px;font-size:1.8rem}.card-header p{color:#666}.registration-form-layout{display:flex;gap:40px;align-items:flex-start}.photo-uploader{flex-shrink:0;width:180px;text-align:center;position:relative}.photo-uploader label{display:block;width:180px;height:180px;border:2px dashed var(--border-color);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-weight:600;transition:all 0.3s ease;overflow:hidden}.photo-uploader label:hover{border-color:var(--primary-color);color:var(--primary-color);background-color:#f8f8f8}.photo-uploader .upload-icon{font-size:3rem;font-weight:200;line-height:1}#photo-preview img{width:100%;height:100%;object-fit:cover}.photo-uploader p{font-size:0.9rem;color:#777;margin-top:10px}.remove-photo-btn{background:var(--danger-color);color:white;border:none;border-radius:50%;width:30px;height:30px;position:absolute;top:-5px;right:-5px;font-size:1.2rem;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,0.2);transition:transform 0.2s ease}.remove-photo-btn:hover{transform:scale(1.1)}.form-fields{flex-grow:1}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.form-group{display:flex;flex-direction:column}.form-group.full-width{grid-column:1 / -1}.form-group label{margin-bottom:8px;font-weight:600;color:#555}
+        .form-group input,.form-group select{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-size:1rem;transition:transform 0.2s ease-out, box-shadow 0.2s ease-out}
+        .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(255, 196, 0, 0.4);transform:translateY(-2px)}
+        .form-actions{margin-top:30px;text-align:center}
+        .submit-button{width:100%;padding:15px;border:none;border-radius:8px;background-color:var(--primary-color);color:#000;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:background-color .3s ease, transform 0.2s ease}
+        .submit-button:hover{background-color:var(--primary-hover-color);transform:scale(1.02)}
+        .page-link{display:inline-block;margin-top:20px;color:var(--primary-color);text-decoration:none;font-weight:600;transition:transform 0.2s ease}
+        .page-link:hover{text-decoration:underline;transform:translateY(-2px)}.feedback-message{padding:15px;margin-bottom:20px;border-radius:8px;font-weight:500;text-align:center}.feedback-message.success{background-color:#d4edda;color:#155724}.feedback-message.error{background-color:#f8d7da;color:#721c24}.hidden{display:none}@media (max-width:768px){.registration-form-layout{flex-direction:column;align-items:center}.photo-uploader{margin-bottom:30px}.card-container{padding:25px}}@media (max-width:500px){.form-grid{grid-template-columns:1fr}}
+
+        /* ANIMAÇÕES */
+        @keyframes slideUpFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .card-container{animation:slideUpFadeIn 0.6s ease-out forwards}
+        body.fade-out{opacity:0}
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="logo-container">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNV8dxYF7dGp6TSUvr5KLLddCultBUPuo8XA&s" alt="Logo da Empresa">
+        </div>
+        <div class="card-header">
+            <h1>Cadastro de Novo Aluno</h1>
+            <p>Preencha os dados e adicione uma foto para o perfil.</p>
+        </div>
+        <div id="feedback" class="hidden"></div>
+        <form id="registrationForm">
+            <div class="registration-form-layout">
+                <div class="photo-uploader">
+                    <label for="photo-input">
+                        <div id="photo-preview"><span class="upload-icon">+</span><span>Enviar Foto</span></div>
+                    </label>
+                    <input type="file" id="photo-input" accept="image/*" class="hidden">
+                    <button type="button" id="remove-photo-btn" class="remove-photo-btn hidden">&times;</button>
+                    <p>Foto do Aluno</p>
+                </div>
+                <div class="form-fields">
+                    <div class="form-grid">
+                        <div class="form-group full-width"><label for="nome">Nome Completo</label><input type="text" id="nome" required></div>
+                        <div class="form-group"><label for="cpf">CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" required maxlength="14"></div>
+                        <div class="form-group"><label for="nascimento">Data de Nascimento</label><input type="date" id="nascimento" required></div>
+                        <div class="form-group"><label for="celular">Celular (WhatsApp)</label><input type="tel" id="celular" placeholder="(00) 00000-0000" required></div>
+                        <div class="form-group"><label for="email">Email</label><input type="email" id="email" required></div>
+                        <div class="form-group"><label for="plano">Plano Escolhido</label><select id="plano" required><option value="" disabled selected>Selecione um plano</option><option value="Mensal">Plano Mensal</option><option value="Trimestral">Plano Trimestral</option><option value="Anual">Plano Anual</option></select></div>
+                        <div class="form-group"><label for="inicio">Data de Início</label><input type="date" id="inicio" required></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-button">Cadastrar Aluno</button>
+                <a href="index.html" class="page-link">Voltar para a Validação</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // --- Animação de Transição de Página ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const pageLinks = document.querySelectorAll('.page-link');
+            pageLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Resolve a URL relativa para uma URL absoluta para evitar erros no ambiente de execução
+                    const destinationUrl = new URL(this.getAttribute('href'), window.location.href);
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => { window.location.href = destinationUrl.href; }, 400);
+                });
+            });
+        });
+        
+        const form = document.getElementById('registrationForm'); const feedbackContainer = document.getElementById('feedback'); const cpfInput = document.getElementById('cpf'); const celularInput = document.getElementById('celular'); const photoInput = document.getElementById('photo-input'); const photoPreview = document.getElementById('photo-preview'); const removePhotoBtn = document.getElementById('remove-photo-btn'); const nascimentoInput = document.getElementById('nascimento'); const inicioInput = document.getElementById('inicio'); function setDateLimits() { const today = new Date().toISOString().split('T')[0]; nascimentoInput.setAttribute('max', today); inicioInput.setAttribute('min', today); } setDateLimits(); photoInput.addEventListener('change', function() { const file = this.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(event) { photoPreview.innerHTML = `<img src="${event.target.result}" alt="Foto do Aluno">`; removePhotoBtn.classList.remove('hidden'); }; reader.readAsDataURL(file); } }); removePhotoBtn.addEventListener('click', function() { photoInput.value = ''; photoPreview.innerHTML = '<span class="upload-icon">+</span><span>Enviar Foto</span>'; removePhotoBtn.classList.add('hidden'); }); cpfInput.addEventListener('input', () => { let v = cpfInput.value.replace(/\D/g,""); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); cpfInput.value=v; }); celularInput.addEventListener('input', () => { let v = celularInput.value.replace(/\D/g,""); v=v.replace(/^(\d{2})(\d)/,"($1) $2"); v=v.replace(/(\d{5})(\d)/,"$1-$2"); celularInput.value = v.slice(0, 15); }); form.addEventListener('submit', function(event) { event.preventDefault(); const currentYear = new Date().getFullYear(); const randomSuffix = Math.random().toString().slice(2, 8); const newMatricula = `${currentYear}${randomSuffix}`; console.log("--- DADOS DO ALUNO CADASTRADO (SIMULAÇÃO) ---"); console.log("Matrícula Gerada:", newMatricula); console.log("Nome:", document.getElementById('nome').value); showFeedback(`Aluno cadastrado com sucesso! <br><strong>Matrícula: ${newMatricula}</strong>`, "success"); form.reset(); removePhotoBtn.click(); }); function showFeedback(message, type) { feedbackContainer.innerHTML = message; feedbackContainer.className = `feedback-message ${type}`; feedbackContainer.classList.remove('hidden'); window.scrollTo(0, 0); setTimeout(() => { feedbackContainer.classList.add('hidden'); }, 10000); }
+    </script>
+</body>
+</html>
+

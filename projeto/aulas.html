@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aulas do Dia - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light);transition:opacity .4s ease-out}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto;animation:slideUpFadeIn .6s ease-out forwards}@keyframes slideUpFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}body.fade-out{opacity:0}
+        
+        .class-layout{display:grid;grid-template-columns:1fr 2fr;gap:30px}
+        @media (max-width: 900px) { .class-layout { grid-template-columns: 1fr; } }
+        .card{background-color:var(--dark-card);padding:25px;border-radius:10px}
+        .card h2{margin-bottom:20px;border-bottom:1px solid var(--border-color);padding-bottom:15px}
+        .form-group{margin-bottom:15px}.form-group label{display:block;margin-bottom:8px;font-weight:600}
+        .form-group input, .form-group select{width:100%;padding:12px;border-radius:8px;background-color:#3a3a3a;border:1px solid var(--border-color);color:var(--text-light);font-size:1rem}
+        .submit-btn{width:100%;padding:15px;border:none;border-radius:8px;background-color:var(--primary-color);color:#000;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:background-color .3s}.submit-btn:hover{background-color:var(--primary-hover-color)}
+        
+        .student-selection-list{background-color:#3a3a3a;border-radius:8px;padding:15px;max-height:250px;overflow-y:auto}
+        .student-selection-list h4{margin-bottom:10px}
+        .student-selection-list .student-item{display:flex;align-items:center;margin-bottom:10px;cursor:pointer}.student-selection-list .student-item input{margin-right:10px; width: 18px; height: 18px; accent-color: var(--primary-color);}
+        .student-selection-list .student-item label { flex-grow: 1; cursor: pointer; }
+        .class-list-table{width:100%;border-collapse:collapse}.class-list-table th,.class-list-table td{padding:15px;border-bottom:1px solid var(--border-color);text-align:left}
+        .class-list-table th{color:var(--text-muted);text-transform:uppercase;font-size:.9rem}
+        .class-list-table .student-list-cell ul{padding-left:20px; margin: 0;}
+        .class-list-table .student-list-cell li { margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <h1>Aulas do Dia</h1>
+            <p id="current-date" style="color: var(--text-muted); font-size: 1.2rem; margin-top:-5px; margin-bottom: 30px;"></p>
+
+            <div class="class-layout">
+                <div class="card">
+                    <h2>Registrar Nova Aula</h2>
+                    <form id="add-class-form">
+                        <div class="form-group">
+                            <label for="professor-name">Nome do Professor</label>
+                            <input type="text" id="professor-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="class-duration">Duração (horas)</label>
+                            <input type="number" id="class-duration" step="0.5" min="0.5" required>
+                        </div>
+                        <div class="student-selection-list">
+                            <h4>Selecione os Alunos Presentes</h4>
+                            <div id="student-selection-container">
+                                <!-- Lista de alunos ativos para seleção -->
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn" style="margin-top: 15px;">Registrar Aula</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h2>Aulas Registradas Hoje</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="class-list-table">
+                            <thead>
+                                <tr><th>Professor</th><th>Duração</th><th>Alunos Presentes</th></tr>
+                            </thead>
+                            <tbody id="registered-classes-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            const studentSelectionContainer = document.getElementById('student-selection-container');
+            const registeredClassesBody = document.getElementById('registered-classes-body');
+            const addClassForm = document.getElementById('add-class-form');
+
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const today = getTodayDateString();
+            dateEl.textContent = new Date(today + 'T12:00:00Z').toLocaleDateString('pt-BR', { dateStyle: 'full' });
+
+            let allAlunos = JSON.parse(localStorage.getItem('alunos')) || [];
+            
+            function loadStudentSelection() {
+                studentSelectionContainer.innerHTML = '';
+                const alunosAtivos = allAlunos.filter(a => a.status === 'Ativo');
+
+                if (alunosAtivos.length === 0) {
+                    studentSelectionContainer.innerHTML = '<p style="color: var(--text-muted);">Nenhum aluno ativo encontrado.</p>';
+                    return;
+                }
+                
+                alunosAtivos.forEach(aluno => {
+                    const item = document.createElement('div');
+                    item.className = 'student-item';
+                    item.innerHTML = `
+                        <label>
+                            <input type="checkbox" name="present-student" value="${aluno.matricula}">
+                            ${aluno.nome}
+                        </label>
+                    `;
+                    studentSelectionContainer.appendChild(item);
+                });
+            }
+            
+            function loadRegisteredClasses() {
+                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
+                const aulasHoje = aulas[today] || [];
+                registeredClassesBody.innerHTML = '';
+                
+                if (aulasHoje.length === 0) {
+                    registeredClassesBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhuma aula registrada hoje.</td></tr>';
+                    return;
+                }
+                
+                aulasHoje.forEach(aula => {
+                    const row = document.createElement('tr');
+                    const studentNames = aula.alunos.map(aluno => `<li>${aluno.nome}</li>`).join('');
+                    row.innerHTML = `
+                        <td>${aula.professor}</td>
+                        <td>${aula.duracao}h</td>
+                        <td class="student-list-cell"><ul>${studentNames || '<li>Nenhum aluno selecionado</li>'}</ul></td>
+                    `;
+                    registeredClassesBody.appendChild(row);
+                });
+            }
+
+            addClassForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const professor = document.getElementById('professor-name').value;
+                const duracao = document.getElementById('class-duration').value;
+                
+                const selectedCheckboxes = studentSelectionContainer.querySelectorAll('input[type="checkbox"]:checked');
+                const alunosPresentesNaAula = Array.from(selectedCheckboxes).map(checkbox => {
+                    return allAlunos.find(a => a.matricula === checkbox.value);
+                }).filter(Boolean);
+
+                if (alunosPresentesNaAula.length === 0) {
+                    alert('Por favor, selecione pelo menos um aluno para registrar a aula.');
+                    return;
+                }
+
+                const newAula = {
+                    id: Date.now(),
+                    professor,
+                    duracao,
+                    alunos: alunosPresentesNaAula.map(a => ({ matricula: a.matricula, nome: a.nome }))
+                };
+
+                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
+                if (!aulas[today]) {
+                    aulas[today] = [];
+                }
+                aulas[today].push(newAula);
+                localStorage.setItem('aulas', JSON.stringify(aulas));
+
+                loadRegisteredClasses();
+                addClassForm.reset();
+                selectedCheckboxes.forEach(cb => cb.checked = false);
+            });
+
+            // Initial Load
+            loadStudentSelection();
+            loadRegisteredClasses();
+        });
+    </script>
+</body>
+</html>
+

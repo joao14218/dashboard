@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Presença - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        
+        /* ESTILOS CORRIGIDOS/ADICIONADOS */
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+        .presence-header{text-align:center;margin-bottom:30px}
+        .presence-list-wrapper{background-color:var(--dark-card);padding:20px;border-radius:10px}
+        .presence-table{width:100%;border-collapse:collapse;text-align:left}
+        .presence-table th, .presence-table td{padding:15px;border-bottom:1px solid var(--border-color)}
+        .presence-table th{font-size:.9rem;text-transform:uppercase;color:var(--text-muted)}
+        .presence-table img{width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px}
+        .presence-btn{padding:8px 15px;border-radius:6px;border:none;color:white;font-weight:600;cursor:pointer;transition:background-color .3s}
+        .presence-btn.present{background-color:var(--success-color)}
+        .presence-btn.absent{background-color:var(--danger-color)}
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <div class="presence-header">
+                <h1>Controle de Presença</h1>
+                <p id="current-date" style="color: var(--text-muted); font-size: 1.2rem;"></p>
+            </div>
+            <div class="presence-list-wrapper">
+                <table class="presence-table">
+                    <thead><tr><th>Aluno</th><th>Matrícula</th><th>Status</th><th>Ação</th></tr></thead>
+                    <tbody id="presence-list-body"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const listBody = document.getElementById('presence-list-body');
+            const dateEl = document.getElementById('current-date');
+
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const today = getTodayDateString();
+            dateEl.textContent = new Date(today + 'T12:00:00Z').toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            function loadPresenceList() {
+                const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+                const presencas = JSON.parse(localStorage.getItem('presencas')) || {};
+                const presencasHoje = presencas[today] || [];
+                
+                const alunosAtivos = alunos.filter(aluno => aluno.status === 'Ativo');
+
+                listBody.innerHTML = '';
+                if (alunosAtivos.length === 0) {
+                    listBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum aluno ativo para marcar presença.</td></tr>';
+                    return;
+                }
+
+                alunosAtivos.forEach(aluno => {
+                    const isPresent = presencasHoje.includes(aluno.matricula);
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td><img src="${aluno.fotoUrl || 'https://placehold.co/40x40/2c2c2c/f0f0f0?text=S/F'}" alt="Foto"> ${aluno.nome}</td>
+                        <td>${aluno.matricula}</td>
+                        <td>${isPresent ? 'Presente' : 'Ausente'}</td>
+                        <td>
+                            <button class="presence-btn ${isPresent ? 'absent' : 'present'}" data-matricula="${aluno.matricula}">
+                                ${isPresent ? 'Marcar Falta' : 'Marcar Presença'}
+                            </button>
+                        </td>
+                    `;
+                    listBody.appendChild(row);
+                });
+            }
+
+            listBody.addEventListener('click', (e) => {
+                const presenceBtn = e.target.closest('.presence-btn');
+                if (presenceBtn) {
+                    const matricula = presenceBtn.dataset.matricula;
+                    const presencas = JSON.parse(localStorage.getItem('presencas')) || {};
+                    if (!presencas[today]) presencas[today] = [];
+                    
+                    const presencasHoje = presencas[today];
+                    const studentIndex = presencasHoje.indexOf(matricula);
+
+                    if (studentIndex > -1) {
+                        presencasHoje.splice(studentIndex, 1);
+                    } else {
+                        presencasHoje.push(matricula);
+                    }
+
+                    localStorage.setItem('presencas', JSON.stringify(presencas));
+                    loadPresenceList();
+                }
+            });
+            
+            loadPresenceList();
+        });
+    </script>
+</body>
+</html>
+

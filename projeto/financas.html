@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        
+        /* ESTILOS CORRIGIDOS/ADICIONADOS */
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+        .finance-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:20px}
+        .date-selector label{font-weight:600;margin-right:10px}
+        .date-selector input[type="date"]{background-color:var(--dark-card);color:var(--text-light);border:1px solid var(--border-color);padding:10px;border-radius:8px;font-size:1rem}
+        .reset-day-btn{background-color:var(--danger-color);color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer}
+        .finance-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px;margin-bottom:30px}
+        .summary-card{background-color:var(--dark-card);padding:25px;border-radius:10px;border-left:5px solid var(--primary-color)}.summary-card i{font-size:2.5rem;color:var(--primary-color);margin-bottom:15px}.summary-card h3{color:var(--text-muted);margin-bottom:5px;font-size:1rem;text-transform:uppercase}
+        .summary-card p{font-size:2rem;font-weight:bold}
+        .transaction-list-wrapper{background-color:var(--dark-card);padding:20px;border-radius:10px}
+        .transaction-table{width:100%;border-collapse:collapse;text-align:left}
+        .transaction-table th, .transaction-table td{padding:15px;border-bottom:1px solid var(--border-color)}
+        .transaction-table th{font-size:.9rem;text-transform:uppercase;color:var(--text-muted)}
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <div class="finance-header">
+                <h1>Controle Financeiro</h1>
+                <div class="date-selector">
+                    <label for="finance-date">Analisar Dia:</label>
+                    <input type="date" id="finance-date">
+                </div>
+            </div>
+            <div class="finance-summary">
+                <div class="summary-card"><i class="ph-fill ph-chart-line-up"></i><h3>Faturamento do Dia</h3><p id="faturamento-selecionado">R$ 0,00</p></div>
+                <div class="summary-card"><i class="ph-fill ph-list-checks"></i><h3>Vendas no Dia</h3><p id="vendas-selecionadas">0</p></div>
+            </div>
+            <div class="transaction-list-wrapper">
+                <h2>Transações do Dia</h2>
+                <table class="transaction-table">
+                    <thead><tr><th>Horário</th><th>Itens</th><th>Total</th></tr></thead>
+                    <tbody id="transaction-list-body"></tbody>
+                </table>
+            </div>
+            <div style="margin-top: 30px; text-align: right;"><button class="reset-day-btn" id="reset-day-btn">Resetar Vendas do Dia</button></div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('finance-date');
+            const faturamentoEl = document.getElementById('faturamento-selecionado');
+            const vendasEl = document.getElementById('vendas-selecionadas');
+            const transactionListBody = document.getElementById('transaction-list-body');
+            const resetBtn = document.getElementById('reset-day-btn');
+
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function displayFinancialsForDate(dateString) {
+                const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+                const salesForDate = salesHistory.filter(sale => sale.date === dateString);
+                const totalFaturamento = salesForDate.reduce((sum, sale) => sum + sale.total, 0);
+                
+                faturamentoEl.textContent = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
+                vendasEl.textContent = salesForDate.length;
+                transactionListBody.innerHTML = '';
+                if (salesForDate.length === 0) {
+                    transactionListBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">Nenhuma venda registrada neste dia.</td></tr>';
+                } else {
+                    salesForDate.forEach(sale => {
+                        const row = document.createElement('tr');
+                        const saleTime = new Date(sale.id).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                        const itemSummary = sale.items.map(item => item.name).join(', ');
+                        row.innerHTML = `
+                            <td>${saleTime}</td>
+                            <td><div class="item-summary">${itemSummary}</div></td>
+                            <td>R$ ${sale.total.toFixed(2).replace('.', ',')}</td>
+                        `;
+                        transactionListBody.appendChild(row);
+                    });
+                }
+            }
+
+            const today = getTodayDateString();
+            dateInput.value = today;
+            displayFinancialsForDate(today);
+
+            dateInput.addEventListener('change', () => {
+                displayFinancialsForDate(dateInput.value);
+            });
+
+            resetBtn.addEventListener('click', () => {
+                const selectedDate = dateInput.value;
+                if (!selectedDate) {
+                    alert('Por favor, selecione uma data.');
+                    return;
+                }
+                if (confirm(`Tem certeza que deseja apagar TODAS as vendas do dia ${new Date(selectedDate+'T12:00:00Z').toLocaleDateString('pt-BR')}?`)) {
+                    let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+                    const updatedHistory = salesHistory.filter(sale => sale.date !== selectedDate);
+                    localStorage.setItem('salesHistory', JSON.stringify(updatedHistory));
+                    displayFinancialsForDate(selectedDate);
+                    alert('Vendas do dia selecionado foram resetadas.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

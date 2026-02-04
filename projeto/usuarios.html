@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        
+        /* ESTILOS CORRIGIDOS/ADICIONADOS */
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+        .card{background-color:var(--dark-card);padding:25px;border-radius:10px;margin-bottom:30px}
+        .card h2{margin-bottom:20px}
+        .form-group{margin-bottom:15px}.form-group label{display:block;margin-bottom:8px;font-weight:600}
+        .form-group input, .form-group select{width:100%;padding:12px;border-radius:8px;background-color:#3a3a3a;border:1px solid var(--border-color);color:var(--text-light);font-size:1rem}
+        .submit-btn{width:100%;padding:15px;border:none;border-radius:8px;background-color:var(--primary-color);color:#000;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:background-color .3s}
+        .user-table{width:100%;border-collapse:collapse}.user-table th,.user-table td{padding:15px;border-bottom:1px solid var(--border-color);text-align:left}
+        .remove-btn{background-color:var(--danger-color);border:none;color:white;padding:5px 10px;border-radius:5px;cursor:pointer}
+        .logout-all-btn{background-color:var(--danger-color);color:white;width:100%;padding:15px;border:none;font-size:1rem;font-weight:600;border-radius:8px;cursor:pointer;transition:background-color .3s}.logout-all-btn:hover{background-color:#c0392b}
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <h1>Gerenciamento de Usuários</h1>
+            <div class="card">
+                <h2>Adicionar Novo Usuário</h2>
+                <form id="add-user-form">
+                    <div class="form-group"><label for="new-username">Usuário</label><input type="text" id="new-username" required></div>
+                    <div class="form-group"><label for="new-password">Senha</label><input type="password" id="new-password" required></div>
+                    <div class="form-group"><label for="new-role">Perfil</label><select id="new-role" required><option value="Professor">Professor</option><option value="Vendedor">Vendedor</option><option value="Administrador">Administrador</option><option value="CEO">CEO</option></select></div>
+                    <button type="submit" class="submit-btn">Adicionar Usuário</button>
+                </form>
+            </div>
+            <div class="card">
+                <h2>Usuários Cadastrados</h2>
+                <table class="user-table">
+                    <thead><tr><th>Usuário</th><th>Perfil</th><th>Ação</th></tr></thead>
+                    <tbody id="user-list-body"></tbody>
+                </table>
+            </div>
+            <div class="card">
+                <h2>Segurança</h2>
+                <button id="logout-all-btn" class="logout-all-btn">Sair de Todas as Contas (exceto esta)</button>
+            </div>
+        </main>
+    </div>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (currentUser.role !== 'CEO' && currentUser.role !== 'Administrador') {
+                window.location.href = 'login.html';
+                return;
+            }
+            const addUserForm = document.getElementById('add-user-form');
+            const userListBody = document.getElementById('user-list-body');
+            const logoutAllBtn = document.getElementById('logout-all-btn');
+
+            function loadUsers() {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                userListBody.innerHTML = '';
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${user.username}</td><td>${user.role}</td><td>${user.username !== 'admin' ? `<button class="remove-btn" data-id="${user.id}">Remover</button>` : ''}</td>`;
+                    userListBody.appendChild(row);
+                });
+            }
+
+            addUserForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const newUser = {
+                    id: Date.now(),
+                    username: document.getElementById('new-username').value,
+                    password: document.getElementById('new-password').value,
+                    role: document.getElementById('new-role').value,
+                };
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                addUserForm.reset();
+                loadUsers();
+            });
+
+            userListBody.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-btn')) {
+                    if(confirm('Tem certeza?')) {
+                        const userId = Number(e.target.dataset.id);
+                        let users = JSON.parse(localStorage.getItem('users')) || [];
+                        users = users.filter(user => user.id !== userId);
+                        localStorage.setItem('users', JSON.stringify(users));
+                        loadUsers();
+                    }
+                }
+            });
+            
+            logoutAllBtn.addEventListener('click', () => {
+                if(confirm('Tem certeza que deseja desconectar todos os outros usuários?')) {
+                    localStorage.setItem('forceLogout', JSON.stringify({ adminId: currentUser.id, timestamp: Date.now() }));
+                    alert('Todos os outros usuários foram desconectados.');
+                }
+            });
+
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
+
