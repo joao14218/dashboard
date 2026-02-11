@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Arena Louzada</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
+        .app-layout{display:flex;width:100%;min-height:100vh}
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
+        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+
+        /* Config Specific Styles */
+        .config-card { background-color: var(--dark-card); padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .config-card h2 { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 8px; background-color: #3a3a3a; border: 1px solid var(--border-color); color: var(--text-light); font-size: 1rem; }
+        .submit-btn { padding: 12px 20px; border: none; border-radius: 8px; background-color: var(--primary-color); color: #000; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;}
+        .submit-btn:hover { background-color: var(--primary-hover-color); }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .data-table th, .data-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        .data-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; }
+        .delete-btn { background-color: var(--danger-color); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <h1 style="margin-bottom: 30px;">Configurações do Sistema</h1>
+
+            <div class="config-card">
+                <h2><i class="ph-bold ph-storefront"></i> Dados da Arena</h2>
+                <form id="form-dados-arena">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome Fantasia</label>
+                            <input type="text" id="arena-nome" placeholder="Ex: Arena Louzada">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp / Telefone</label>
+                            <input type="text" id="arena-telefone" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail de Contato</label>
+                            <input type="email" id="arena-email" placeholder="contato@arenalouzada.com.br">
+                        </div>
+                        <div class="form-group">
+                            <label>Endereço</label>
+                            <input type="text" id="arena-endereco" placeholder="Ex: Rua Principal, 123">
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="ph-bold ph-floppy-disk"></i> Salvar Dados</button>
+                </form>
+            </div>
+
+            <div class="config-card">
+                <h2><i class="ph-bold ph-ticket"></i> Gestão de Planos e Valores</h2>
+                <form id="form-planos" style="display:flex; gap:15px; align-items:flex-end; flex-wrap:wrap;">
+                    <div class="form-group" style="flex:2; min-width: 200px; margin-bottom:0;">
+                        <label>Nome do Plano</label>
+                        <input type="text" id="plano-nome" placeholder="Ex: Semestral" required>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width: 120px; margin-bottom:0;">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="plano-valor" step="0.01" placeholder="Ex: 500.00" required>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width: 120px; margin-bottom:0;">
+                        <label>Duração (Meses)</label>
+                        <input type="number" id="plano-duracao" min="1" value="1" required>
+                    </div>
+                    <button type="submit" class="submit-btn" style="margin-bottom:0; height: 45px;">Adicionar Plano</button>
+                </form>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Plano</th>
+                            <th>Valor Total (R$)</th>
+                            <th>Duração</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-planos-body"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Lógica dos Dados da Arena
+            const formArena = document.getElementById('form-dados-arena');
+            
+            function carregarDadosArena() {
+                const dados = JSON.parse(localStorage.getItem('arenaDados')) || {
+                    nome: 'Arena Louzada', telefone: '', email: '', endereco: ''
+                };
+                document.getElementById('arena-nome').value = dados.nome;
+                document.getElementById('arena-telefone').value = dados.telefone;
+                document.getElementById('arena-email').value = dados.email;
+                document.getElementById('arena-endereco').value = dados.endereco;
+            }
+
+            formArena.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const dados = {
+                    nome: document.getElementById('arena-nome').value,
+                    telefone: document.getElementById('arena-telefone').value,
+                    email: document.getElementById('arena-email').value,
+                    endereco: document.getElementById('arena-endereco').value
+                };
+                localStorage.setItem('arenaDados', JSON.stringify(dados));
+                alert('Dados da Arena salvos com sucesso!');
+            });
+
+            // 2. Lógica de Gestão de Planos
+            const formPlanos = document.getElementById('form-planos');
+            const listaPlanosBody = document.getElementById('lista-planos-body');
+
+            function carregarPlanos() {
+                // Se não tiver planos, cria os padrões iniciais para não quebrar o que já existe
+                let planos = JSON.parse(localStorage.getItem('arenaPlanos'));
+                if (!planos || planos.length === 0) {
+                    planos = [
+                        { id: 1, nome: 'Mensal', valor: 100, duracao: 1 },
+                        { id: 2, nome: 'Trimestral', valor: 280, duracao: 3 },
+                        { id: 3, nome: 'Anual', valor: 1000, duracao: 12 }
+                    ];
+                    localStorage.setItem('arenaPlanos', JSON.stringify(planos));
+                }
+
+                listaPlanosBody.innerHTML = '';
+                planos.forEach(plano => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${plano.nome}</strong></td>
+                        <td>R$ ${parseFloat(plano.valor).toFixed(2).replace('.', ',')}</td>
+                        <td>${plano.duracao} ${plano.duracao > 1 ? 'Meses' : 'Mês'}</td>
+                        <td><button class="delete-btn" onclick="deletarPlano(${plano.id})"><i class="ph-bold ph-trash"></i></button></td>
+                    `;
+                    listaPlanosBody.appendChild(row);
+                });
+            }
+
+            formPlanos.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const planos = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
+                const novoPlano = {
+                    id: Date.now(),
+                    nome: document.getElementById('plano-nome').value,
+                    valor: parseFloat(document.getElementById('plano-valor').value),
+                    duracao: parseInt(document.getElementById('plano-duracao').value)
+                };
+                planos.push(novoPlano);
+                localStorage.setItem('arenaPlanos', JSON.stringify(planos));
+                formPlanos.reset();
+                carregarPlanos();
+            });
+
+            window.deletarPlano = function(id) {
+                if(confirm('Tem certeza que deseja apagar este plano?')) {
+                    let planos = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
+                    planos = planos.filter(p => p.id !== id);
+                    localStorage.setItem('arenaPlanos', JSON.stringify(planos));
+                    carregarPlanos();
+                }
+            }
+
+            // Inicializar a página
+            carregarDadosArena();
+            carregarPlanos();
+        });
+    </script>
+</body>
+</html>
