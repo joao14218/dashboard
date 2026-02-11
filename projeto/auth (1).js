@@ -1,16 +1,15 @@
-// --- AUTH SCRIPT - NÃO MODIFICAR ---
+// --- AUTH SCRIPT ---
 const currentUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
 const forceLogoutData = JSON.parse(localStorage.getItem('forceLogout'));
 
-// 1. Definição das permissões de cada perfil
+// 1. Definição das permissões
 const permissions = {
-    'CEO': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html'],
-    'Administrador': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html'],
+    'CEO': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html', 'configuracoes.html'],
+    'Administrador': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html', 'configuracoes.html'],
     'Professor': ['alunos.html', 'presenca.html', 'aulas.html'],
     'Vendedor': ['vendas.html']
 };
 
-// 2. Verificação de Segurança
 if (!currentUser) {
     window.location.href = 'login.html';
 } else if (forceLogoutData && currentUser.id !== forceLogoutData.adminId) {
@@ -20,20 +19,17 @@ if (!currentUser) {
         window.location.href = 'login.html';
     }
 } else {
-    // Verifica se a página atual é permitida para o usuário
     const userPermissions = permissions[currentUser.role] || [];
     const currentPage = window.location.pathname.split('/').pop();
     if (userPermissions.length > 0 && !userPermissions.includes(currentPage)) {
-        // Se não for permitida, redireciona para a primeira página que ele tem acesso
         window.location.href = userPermissions[0];
     } else if (userPermissions.length === 0 && !userPermissions.includes(currentPage)) {
-        // Se não tem nenhuma permissão, desloga
         sessionStorage.removeItem('loggedInUser');
         window.location.href = 'login.html';
     }
 }
 
-// 3. Estrutura do menu
+// 3. Estrutura do menu (Configurações adicionado no final)
 const menuItems = [
     { name: 'Início', href: 'dashboard.html', icon: 'ph-house' },
     { name: 'Alunos', href: 'alunos.html', icon: 'ph-users' },
@@ -41,10 +37,10 @@ const menuItems = [
     { name: 'Aulas do Dia', href: 'aulas.html', icon: 'ph-chalkboard-teacher' },
     { name: 'Vendas', href: 'vendas.html', icon: 'ph-shopping-cart' },
     { name: 'Finanças', href: 'financas.html', icon: 'ph-currency-circle-dollar' },
-    { name: 'Usuários', href: 'usuarios.html', icon: 'ph-user-gear' }
+    { name: 'Usuários', href: 'usuarios.html', icon: 'ph-user-gear' },
+    { name: 'Configurações', href: 'configuracoes.html', icon: 'ph-gear' }
 ];
 
-// 4. Função para gerar o menu lateral dinamicamente
 function generateSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar || !currentUser) return;
@@ -78,4 +74,3 @@ function generateSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', generateSidebar);
-
