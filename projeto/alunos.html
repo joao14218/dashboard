@@ -33,7 +33,6 @@
         .status-vencendo{background-color:var(--warning-color); color: #000;}
         .status-vencido{background-color:var(--danger-color)}
 
-        /* Form Cadastro Styles */
         .form-card{background-color:var(--dark-card);padding:30px;border-radius:10px;max-width:800px;margin:auto}
         .registration-form-layout{display:flex;gap:40px;align-items:flex-start}
         @media (max-width: 768px) { .registration-form-layout { flex-direction: column; align-items: center; } }
@@ -46,31 +45,32 @@
         .delete-btn{background-color:var(--danger-color);color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:5px;}
         .hidden{display:none}
 
-        /* Modal Styles */
+        /* Modal Premium Styles */
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity .3s}.modal-overlay.active{opacity:1;visibility:visible}
-        .modal-content{background-color:var(--dark-card);padding:30px;border-radius:10px;width:100%;max-width:600px;position: relative; max-height: 90vh; overflow-y: auto;}
-        .close-modal-btn{position:absolute;top:15px;right:15px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;}
+        .modal-content{background-color:var(--dark-card);padding:30px;border-radius:10px;width:100%;max-width:600px;position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        .close-modal-btn{position:absolute;top:15px;right:15px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer; transition: color 0.2s;}
+        .close-modal-btn:hover{color: var(--danger-color);}
         .modal-header{text-align:center; margin-bottom:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;}
-        .modal-header img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--primary-color);margin-bottom:10px}
+        .modal-header img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--primary-color);margin-bottom:10px}
         
         .detail-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #3a3a3a;align-items:center}.detail-item strong{color:var(--text-muted)}
         .detail-item input, .detail-item select{background-color:#4f4f4f;border:1px solid #666;text-align:right; color: var(--text-light); padding: 5px; border-radius: 5px;}
         
         /* Payment Section */
-        .payment-section{background-color:#333; padding: 15px; border-radius: 8px; margin-top: 20px;}
-        .payment-options{display:flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;}
-        .pay-btn{flex: 1 1 45%; padding: 12px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; transition: filter 0.2s;}
-        .pay-btn:hover{filter: brightness(1.1);}
+        .payment-section{background-color:#333; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #444;}
+        .payment-options{display:flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;}
+        .pay-btn{flex: 1 1 45%; padding: 12px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; transition: transform 0.2s;}
+        .pay-btn:hover{transform: translateY(-2px); filter: brightness(1.1);}
         
         .pay-manual{background-color: var(--success-color); color: white;}
         .pay-online{background-color: #0099ff; color: white;}
         .pay-credit{background-color: #e67e22; color: white;}
         .pay-debit{background-color: #9b59b6; color: white;}
         
-        .qr-display{text-align: center; margin-top: 15px; display: none;}
-        .qr-display img{width: 200px; height: 200px; background: white; padding: 10px; border-radius: 8px;}
+        .qr-display{text-align: center; margin-top: 15px; display: none; background: #222; padding: 15px; border-radius: 8px;}
+        .qr-display img{width: 180px; height: 180px; background: white; padding: 10px; border-radius: 8px;}
 
-        .btn-edit{background-color:var(--primary-color);color:#000; padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer;}
+        .btn-edit{background-color:var(--primary-color);color:#000; padding:10px 20px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
     </style>
 </head>
 <body>
@@ -84,25 +84,27 @@
             </div>
             
             <div id="Listar" class="tab-content active">
-                <h2 id="lista-alunos-titulo">Lista de Alunos</h2>
+                <h2 id="lista-alunos-titulo">Lista de Alunos (Servidor)</h2>
                 <div class="student-table-wrapper">
                     <table class="student-table">
                         <thead><tr><th>Aluno</th><th>Plano</th><th>Turma/Horário</th><th>Vencimento</th><th>Status</th></tr></thead>
-                        <tbody id="student-list-body"></tbody>
+                        <tbody id="student-list-body">
+                            <tr><td colspan="5" style="text-align:center;">A carregar alunos da nuvem...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
 
             <div id="Cadastrar" class="tab-content">
                 <div class="form-card">
-                    <h1 style="margin-bottom: 5px;">Cadastro de Novo Aluno</h1>
-                    <p style="color: var(--text-muted); margin-bottom: 25px;">Preencha os dados e adicione uma foto para o perfil.</p>
+                    <h1 style="margin-bottom: 5px;">Cadastro Oficial</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Os dados serão guardados na base de dados.</p>
                     
                     <form id="registrationForm">
                         <div class="registration-form-layout">
                             <div class="photo-uploader">
                                 <label for="photo-input">
-                                    <div id="photo-preview"><span class="upload-icon"><i class="ph ph-camera-plus"></i></span><br><span>Enviar Foto</span></div>
+                                    <div id="photo-preview"><span class="upload-icon"><i class="ph ph-camera-plus"></i></span><br><span>Foto (Opcional)</span></div>
                                 </label>
                                 <input type="file" id="photo-input" accept="image/*" class="hidden">
                             </div>
@@ -132,7 +134,7 @@
                                     <div class="form-group">
                                         <label for="plano">Plano Escolhido</label>
                                         <select id="plano" required>
-                                            <option value="" disabled selected>Carregando planos...</option>
+                                            <option value="" disabled selected>A carregar planos...</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -140,16 +142,16 @@
                                         <input type="date" id="inicio" required>
                                     </div>
                                     <div class="form-group full-width">
-                                        <label for="grade-horario-cadastro">Turma / Horário (Crie na aba 'Grade de Aulas')</label>
+                                        <label for="grade-horario-cadastro">Turma / Horário (Na Nuvem)</label>
                                         <select id="grade-horario-cadastro" required>
-                                            <option value="" disabled selected>Carregando horários...</option>
+                                            <option value="" disabled selected>A carregar horários...</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-actions" style="margin-top:20px;">
-                            <button type="submit" class="submit-button">Cadastrar Aluno</button>
+                            <button type="submit" class="submit-button" id="btn-salvar">Gravar Aluno no Servidor</button>
                         </div>
                     </form>
                 </div>
@@ -157,7 +159,7 @@
 
             <div id="Grade" class="tab-content">
                 <div class="form-card" style="max-width: 100%;">
-                    <h2 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerenciar Grade de Horários</h2>
+                    <h2 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Turmas (Nuvem)</h2>
                     
                     <form id="form-horario" style="display: flex; gap: 15px; flex-wrap: wrap; background: #333; padding: 20px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end;">
                         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
@@ -195,27 +197,27 @@
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
     <div class="modal-overlay" id="student-details-modal">
         <div class="modal-content">
-            <button class="close-modal-btn">&times;</button>
+            <button class="close-modal-btn" onclick="fecharModal()"><i class="ph-bold ph-x"></i></button>
             <div id="modal-content-body"></div>
         </div>
     </div>
 
     <script src="auth.js"></script>
     <script>
+        // AS 3 LISTAS OFICIAIS DA NUVEM
+        let alunosGlobais = [];
+        let turmasNuvem = []; 
+        let planosGlobais = []; 
+
         document.addEventListener('DOMContentLoaded', () => {
-            const currentUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            
-            updateAllStudentStatuses();
-            loadStudentList();
-            loadGradeTable();   
-            loadGradeOptions(); 
-            loadPlanOptions(); // NOVA FUNÇÃO: Carrega os planos de Configurações
+            loadStudentList(); 
+            loadGradeTable(); 
+            loadPlanOptions(); // Agora puxa do banco de dados!
             
             window.openTab = function(evt, tabName) {
                 document.querySelectorAll(".tab-content").forEach(tab => tab.style.display = "none");
@@ -225,116 +227,7 @@
             }
 
             document.body.addEventListener('click', (e) => {
-                if(e.target.closest('.close-modal-btn') || e.target.classList.contains('modal-overlay')) {
-                     document.getElementById('student-details-modal').classList.remove('active');
-                }
-                
-                const studentRow = e.target.closest('#student-list-body tr');
-                if(studentRow) {
-                    showStudentDetailsModal(studentRow.dataset.matricula);
-                }
-
-                if(e.target.closest('.delete-grade-btn')) {
-                    const index = e.target.closest('.delete-grade-btn').dataset.index;
-                    const grade = JSON.parse(localStorage.getItem('gradeHorarios')) || [];
-                    grade.splice(index, 1);
-                    localStorage.setItem('gradeHorarios', JSON.stringify(grade));
-                    loadGradeTable();
-                    loadGradeOptions(); 
-                }
-            });
-
-            // --- CARREGAR PLANOS (NOVIDADE) ---
-            function loadPlanOptions() {
-                const planosConfig = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
-                const selectPlano = document.getElementById('plano');
-                
-                if (planosConfig.length === 0) {
-                    selectPlano.innerHTML = '<option value="" disabled selected>Nenhum plano criado. Vá em Configurações.</option>';
-                    return;
-                }
-
-                selectPlano.innerHTML = '<option value="" disabled selected>Selecione um plano</option>';
-                planosConfig.forEach(p => {
-                    const option = document.createElement('option');
-                    option.value = p.nome;
-                    option.textContent = `${p.nome} (R$ ${parseFloat(p.valor).toFixed(2).replace('.', ',')})`;
-                    selectPlano.appendChild(option);
-                });
-            }
-
-            // --- GERENCIAMENTO DA GRADE DE AULAS ---
-            document.getElementById('form-horario').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const novoHorario = {
-                    dia: document.getElementById('dia-semana').value,
-                    hora: document.getElementById('hora-inicio').value,
-                    professor: document.getElementById('nome-professor').value,
-                    nivel: document.getElementById('nivel-turma').value || 'Geral'
-                };
-
-                const grade = JSON.parse(localStorage.getItem('gradeHorarios')) || [];
-                grade.push(novoHorario);
-                localStorage.setItem('gradeHorarios', JSON.stringify(grade));
-                
-                e.target.reset();
-                loadGradeTable();
-                loadGradeOptions(); 
-            });
-
-            function loadGradeTable() {
-                const grade = JSON.parse(localStorage.getItem('gradeHorarios')) || [];
-                const tbody = document.getElementById('lista-horarios-body');
-                
-                grade.sort((a,b) => (a.dia > b.dia) ? 1 : -1); 
-                
-                tbody.innerHTML = '';
-                if(grade.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;">Nenhuma turma configurada ainda.</td></tr>';
-                    return;
-                }
-
-                grade.forEach((item, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.dia}</td>
-                        <td>${item.hora}</td>
-                        <td>${item.professor}</td>
-                        <td>${item.nivel}</td>
-                        <td><button class="delete-btn delete-grade-btn" data-index="${index}"><i class="ph-bold ph-trash"></i> Excluir</button></td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            function loadGradeOptions() {
-                const gradeConfig = JSON.parse(localStorage.getItem('gradeHorarios')) || [];
-                const selectElement = document.getElementById('grade-horario-cadastro');
-                
-                if(gradeConfig.length === 0) {
-                    selectElement.innerHTML = '<option value="" disabled selected>Nenhum horário criado. Vá na aba "Grade de Aulas" primeiro.</option>';
-                    return;
-                }
-
-                selectElement.innerHTML = '<option value="" disabled selected>Selecione a turma...</option>';
-                gradeConfig.forEach(g => {
-                    const option = document.createElement('option');
-                    option.value = `${g.dia}|${g.hora}|${g.professor}`;
-                    option.textContent = `${g.dia} às ${g.hora} - ${g.professor} (${g.nivel})`;
-                    selectElement.appendChild(option);
-                });
-            }
-
-            // --- FUNÇÕES DE CADASTRO E LISTAGEM DE ALUNOS ---
-            document.getElementById('photo-input').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        document.getElementById('photo-preview').innerHTML = `<img src="${event.target.result}" alt="Preview" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-                    };
-                    reader.readAsDataURL(file);
-                }
+                if(e.target.classList.contains('modal-overlay')) { fecharModal(); }
             });
 
             document.getElementById('cpf').addEventListener('input', (e) => {
@@ -344,7 +237,6 @@
                 v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
                 e.target.value = v.slice(0,14);
             });
-
             document.getElementById('celular').addEventListener('input', (e) => {
                 let v = e.target.value.replace(/\D/g,"");
                 v = v.replace(/^(\d{2})(\d)/,"($1) $2");
@@ -352,145 +244,211 @@
                 e.target.value = v.slice(0,15);
             });
 
-            document.getElementById('registrationForm').addEventListener('submit', (e) => {
+            document.getElementById('registrationForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                const dataInicioString = document.getElementById('inicio').value;
-                const planoSelecionadoForm = document.getElementById('plano').value;
-                const gradeVal = document.getElementById('grade-horario-cadastro').value;
+                const btnSalvar = document.getElementById('btn-salvar');
+                btnSalvar.textContent = "A Guardar...";
+                btnSalvar.disabled = true;
 
+                const gradeVal = document.getElementById('grade-horario-cadastro').value;
                 let diasDeAula = [], horarioAula = '', professor = '';
                 if(gradeVal) {
                     const parts = gradeVal.split('|');
-                    diasDeAula = [parts[0]];
-                    horarioAula = parts[1];
-                    professor = parts[2];
+                    diasDeAula = [parts[0]]; horarioAula = parts[1]; professor = parts[2];
                 }
 
-                // Calcular Vencimento Baseado nos Planos Dinâmicos
-                const planosConfig = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
-                const planoConfigurado = planosConfig.find(p => p.nome === planoSelecionadoForm);
-                const mesesDuracao = planoConfigurado ? planoConfigurado.duracao : 1; // Padrão 1 mês se der erro
+                const planoSelecionado = document.getElementById('plano').value;
+                const planoConfigurado = planosGlobais.find(p => p.nome === planoSelecionado);
+                const mesesDuracao = planoConfigurado ? planoConfigurado.duracao : 1;
 
-                const dataInicio = new Date(dataInicioString + 'T12:00:00Z');
-                let proximoPagamento = new Date(dataInicio);
-                proximoPagamento.setMonth(proximoPagamento.getMonth() + mesesDuracao);
-
+                const dataInicio = document.getElementById('inicio').value;
+                const proximoPag = new Date(dataInicio + 'T12:00:00Z');
+                proximoPag.setMonth(proximoPag.getMonth() + mesesDuracao);
+                
                 const alunoData = {
-                    matricula: `${new Date().getFullYear()}${Math.random().toString().slice(2, 8)}`,
                     nome: document.getElementById('nome').value,
                     cpf: document.getElementById('cpf').value,
                     nascimento: document.getElementById('nascimento').value,
                     celular: document.getElementById('celular').value,
                     email: document.getElementById('email').value,
-                    plano: planoSelecionadoForm,
-                    dataInicio: dataInicioString,
-                    proximoPagamento: proximoPagamento.toISOString().split('T')[0],
-                    diasDeAula: diasDeAula,
+                    plano: planoSelecionado,
+                    data_inicio: dataInicio,
+                    proximo_pagamento: proximoPag.toISOString().split('T')[0],
+                    dias_aula: diasDeAula,
+                    horario_aula: horarioAula,
                     professor: professor,
-                    horarioAula: horarioAula,
-                    status: 'Ativo',
-                    fotoUrl: document.getElementById('photo-preview').querySelector('img')?.src || ''
+                    foto_url: document.getElementById('photo-preview').querySelector('img')?.src || ''
                 };
 
-                const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-                alunos.push(alunoData);
-                localStorage.setItem('alunos', JSON.stringify(alunos));
+                try {
+                    const response = await fetch(`${window.API_URL}/alunos`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
+                        body: JSON.stringify(alunoData)
+                    });
 
-                alert(`Aluno cadastrado com sucesso! Matrícula: ${alunoData.matricula}`);
-                
-                e.target.reset();
-                document.getElementById('photo-preview').innerHTML = '<span class="upload-icon"><i class="ph ph-camera-plus"></i></span><br><span>Enviar Foto</span>';
-                loadStudentList();
-                openTab(new Event('click'), 'Listar'); 
+                    if (response.ok) {
+                        alert("Aluno guardado com sucesso na Nuvem!");
+                        e.target.reset();
+                        document.getElementById('photo-preview').innerHTML = '<span class="upload-icon"><i class="ph ph-camera-plus"></i></span><br><span>Foto (Opcional)</span>';
+                        loadStudentList();
+                        openTab(new Event('click'), 'Listar');
+                    } else { alert("Erro ao guardar no servidor."); }
+                } catch (error) { alert("Erro de ligação."); } 
+                finally { btnSalvar.textContent = "Gravar Aluno no Servidor"; btnSalvar.disabled = false; }
             });
         });
 
-        function updateAllStudentStatuses() {
-            let alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            alunos.forEach(aluno => {
-                if (aluno.proximoPagamento) {
-                    const dueDate = new Date(aluno.proximoPagamento + 'T12:00:00Z');
-                    aluno.status = dueDate < today ? 'Inativo' : 'Ativo';
+        // --- NOVA LÓGICA DE PLANOS (NUVEM) ---
+        async function loadPlanOptions() {
+            const selectPlano = document.getElementById('plano');
+            selectPlano.innerHTML = '<option value="" disabled selected>A carregar planos da nuvem...</option>';
+            try {
+                const response = await fetch(`${window.API_URL}/planos`, { headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } });
+                if (response.ok) {
+                    planosGlobais = await response.json();
+                    selectPlano.innerHTML = '<option value="" disabled selected>Selecione um plano</option>';
+                    if (planosGlobais.length === 0) {
+                        selectPlano.innerHTML = '<option value="" disabled selected>Crie um plano nas Configurações</option>';
+                    } else {
+                        planosGlobais.forEach(p => { 
+                            selectPlano.innerHTML += `<option value="${p.nome}">${p.nome} (R$ ${parseFloat(p.valor).toFixed(2)})</option>`; 
+                        });
+                    }
                 }
-            });
-            localStorage.setItem('alunos', JSON.stringify(alunos));
+            } catch(e) { selectPlano.innerHTML = '<option value="" disabled selected>Erro ao carregar planos</option>'; }
         }
 
+        // --- LÓGICA DA GRADE (NUVEM) ---
+        document.getElementById('form-horario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('.submit-button');
+            btn.textContent = "A salvar..."; btn.disabled = true;
+
+            const novoHorario = {
+                dia: document.getElementById('dia-semana').value,
+                hora: document.getElementById('hora-inicio').value,
+                professor: document.getElementById('nome-professor').value,
+                nivel: document.getElementById('nivel-turma').value || 'Geral'
+            };
+
+            try {
+                await fetch(`${window.API_URL}/grade`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
+                    body: JSON.stringify(novoHorario)
+                });
+                e.target.reset(); 
+                loadGradeTable(); 
+            } catch (error) { alert("Erro ao salvar turma na nuvem."); }
+            finally { btn.textContent = "Adicionar Turma"; btn.disabled = false; }
+        });
+
+        async function loadGradeTable() {
+            const tbody = document.getElementById('lista-horarios-body');
+            const selectElement = document.getElementById('grade-horario-cadastro');
+            
+            try {
+                const response = await fetch(`${window.API_URL}/grade`, { headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } });
+                if (response.ok) {
+                    turmasNuvem = await response.json();
+                    turmasNuvem.sort((a,b) => (a.dia > b.dia) ? 1 : -1); 
+                    
+                    tbody.innerHTML = '';
+                    if(turmasNuvem.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma turma cadastrada.</td></tr>';
+                    } else {
+                        turmasNuvem.forEach((item) => {
+                            tbody.innerHTML += `<tr><td>${item.dia}</td><td>${item.hora}</td><td>${item.professor}</td><td>${item.nivel}</td>
+                            <td><button class="delete-btn" onclick="deletarGrade(${item.id})"><i class="ph-bold ph-trash"></i></button></td></tr>`;
+                        });
+                    }
+
+                    selectElement.innerHTML = '<option value="" disabled selected>Selecione a turma...</option>';
+                    turmasNuvem.forEach(g => { 
+                        selectElement.innerHTML += `<option value="${g.dia}|${g.hora}|${g.professor}">${g.dia} às ${g.hora} - ${g.professor}</option>`; 
+                    });
+                }
+            } catch(e) { tbody.innerHTML = '<tr><td colspan="5">Erro ao carregar turmas.</td></tr>'; }
+        }
+
+        window.deletarGrade = async function(id) {
+            if(confirm("Apagar esta turma permanentemente?")) {
+                try {
+                    await fetch(`${window.API_URL}/grade/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } });
+                    loadGradeTable(); 
+                } catch(e) { alert("Erro ao apagar."); }
+            }
+        }
+
+        // --- LISTAGEM E STATUS ---
         function getPaymentStatus(dueDateString) {
             if (!dueDateString) return { text: 'N/A', className: '' };
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const today = new Date(); today.setHours(0, 0, 0, 0);
             const dueDate = new Date(dueDateString + 'T12:00:00Z');
-            const diffTime = dueDate.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
             
             if (diffDays < 0) return { text: 'Vencido', className: 'status-vencido' };
             if (diffDays <= 7) return { text: 'Vencendo', className: 'status-vencendo' };
             return { text: 'Em dia', className: 'status-em-dia' };
         }
 
-        function loadStudentList() {
-            const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+        async function loadStudentList() {
             const listBody = document.getElementById('student-list-body');
-            listBody.innerHTML = '';
-            
-            alunos.forEach(aluno => {
-                const row = document.createElement('tr');
-                row.dataset.matricula = aluno.matricula;
-                const vencimento = aluno.proximoPagamento ? new Date(aluno.proximoPagamento + 'T12:00:00Z').toLocaleDateString('pt-BR') : '-';
-                const status = getPaymentStatus(aluno.proximoPagamento);
-                
-                let horarioDisplay = aluno.horarioAula || 'Não definido';
-                if(aluno.diasDeAula && aluno.diasDeAula.length > 0) {
-                     horarioDisplay = `${aluno.diasDeAula.join(', ')} - ${horarioDisplay}`;
-                }
+            try {
+                const response = await fetch(`${window.API_URL}/alunos`, { headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } });
+                if (response.ok) {
+                    alunosGlobais = await response.json();
+                    listBody.innerHTML = '';
+                    if(alunosGlobais.length === 0) {
+                        listBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum aluno cadastrado.</td></tr>'; return;
+                    }
+                    alunosGlobais.forEach(aluno => {
+                        const status = getPaymentStatus(aluno.proximo_pagamento);
+                        const vencimento = aluno.proximo_pagamento ? new Date(aluno.proximo_pagamento + 'T12:00:00Z').toLocaleDateString('pt-BR') : '-';
+                        let dias = ''; try { dias = typeof aluno.dias_aula === 'string' ? JSON.parse(aluno.dias_aula).join(', ') : (aluno.dias_aula ? aluno.dias_aula.join(', ') : ''); } catch(e){}
+                        const nomePlanoVisual = (!aluno.plano || aluno.plano === 'undefined' || aluno.plano === 'null') ? 'Sem Plano' : aluno.plano;
 
-                row.innerHTML = `
-                    <td><img src="${aluno.fotoUrl || 'https://placehold.co/40x40/2c2c2c/f0f0f0?text=S/F'}"> ${aluno.nome}</td>
-                    <td>${aluno.plano}</td>
-                    <td><small>${horarioDisplay}</small></td>
-                    <td>${vencimento}</td>
-                    <td><span class="status-tag ${status.className}">${status.text}</span></td>
-                `;
-                listBody.appendChild(row);
-            });
+                        const tr = document.createElement('tr');
+                        tr.onclick = () => showStudentDetailsModal(aluno.matricula);
+                        tr.innerHTML = `
+                            <td><img src="${aluno.foto_url || 'https://placehold.co/40x40/2c2c2c/f0f0f0?text=S/F'}"> ${aluno.nome}</td>
+                            <td>${nomePlanoVisual}</td>
+                            <td><small>${dias} às ${aluno.horario_aula || ''}</small></td>
+                            <td>${vencimento}</td>
+                            <td><span class="status-tag ${status.className}">${status.text}</span></td>
+                        `;
+                        listBody.appendChild(tr);
+                    });
+                }
+            } catch (error) { listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao buscar dados do servidor.</td></tr>'; }
         }
 
-        // --- LÓGICA DO MODAL (DETALHES, PAGAMENTO DINÂMICO, EXCLUSÃO E EDIÇÃO) ---
+        // --- MODAL PREMIUM ---
         window.showStudentDetailsModal = function(matricula, isEditing = false) {
-            const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-            const aluno = alunos.find(a => a.matricula === matricula);
+            const aluno = alunosGlobais.find(a => a.matricula === matricula);
             if (!aluno) return;
 
             const modal = document.getElementById('student-details-modal');
             const modalBody = document.getElementById('modal-content-body');
-            const status = getPaymentStatus(aluno.proximoPagamento);
-            
-            // Grades
-            const gradeConfig = JSON.parse(localStorage.getItem('gradeHorarios')) || [];
-            let gradeSelectHtml = '';
+            const status = getPaymentStatus(aluno.proximo_pagamento);
+            let diasStr = ''; try { diasStr = typeof aluno.dias_aula === 'string' ? JSON.parse(aluno.dias_aula).join(', ') : (aluno.dias_aula ? aluno.dias_aula.join(', ') : ''); } catch(e){}
+            const nomePlanoVisual = (!aluno.plano || aluno.plano === 'undefined' || aluno.plano === 'null') ? 'Sem Plano' : aluno.plano;
+
+            let gradeSelectHtml = `<span>${diasStr} às ${aluno.horario_aula || ''} (${aluno.professor || ''})</span>`;
+            let planosSelectHtml = `<span>${nomePlanoVisual}</span>`;
             
             if (isEditing) {
-                gradeSelectHtml = `<select id="edit-horario" style="width:100%; padding:10px;">
-                    <option value="">Selecione um horário...</option>`;
-                gradeConfig.forEach(g => {
-                    const selected = (aluno.horarioAula === g.hora && (aluno.diasDeAula || []).includes(g.dia)) ? 'selected' : '';
-                    gradeSelectHtml += `<option value="${g.dia}|${g.hora}|${g.professor}" ${selected}>${g.dia} às ${g.hora} - ${g.professor} (${g.nivel})</option>`;
+                gradeSelectHtml = `<select id="edit-horario" style="width:100%; padding:8px;"><option value="">Selecione...</option>`;
+                turmasNuvem.forEach(g => {
+                    const selected = (aluno.horario_aula === g.hora) ? 'selected' : '';
+                    gradeSelectHtml += `<option value="${g.dia}|${g.hora}|${g.professor}" ${selected}>${g.dia} às ${g.hora}</option>`;
                 });
                 gradeSelectHtml += `</select>`;
-            } else {
-                gradeSelectHtml = `<span>${aluno.diasDeAula ? aluno.diasDeAula.join(', ') : ''} às ${aluno.horarioAula || ''} (${aluno.professor || ''})</span>`;
-            }
 
-            // Planos Dinâmicos para Edição
-            const planosConfig = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
-            let planosSelectHtml = '';
-            if (isEditing) {
-                planosSelectHtml = `<select id="edit-plano">`;
-                planosConfig.forEach(p => {
+                // Agora puxa os planos da NUVEM!
+                planosSelectHtml = `<select id="edit-plano" style="width:100%; padding:8px;"><option value="">Selecione...</option>`;
+                planosGlobais.forEach(p => {
                     const selected = (aluno.plano === p.nome) ? 'selected' : '';
                     planosSelectHtml += `<option value="${p.nome}" ${selected}>${p.nome}</option>`;
                 });
@@ -499,7 +457,7 @@
 
             modalBody.innerHTML = `
                 <div class="modal-header">
-                    <img src="${aluno.fotoUrl || 'https://placehold.co/120x120/2c2c2c/f0f0f0?text=Foto'}" alt="Foto">
+                    <img src="${aluno.foto_url || 'https://placehold.co/100x100/2c2c2c/f0f0f0?text=Foto'}" alt="Foto">
                     <h2>${aluno.nome} <br><small style="font-size:0.9rem; color:#aaa;">Matrícula: ${aluno.matricula}</small></h2>
                 </div>
                 
@@ -507,151 +465,127 @@
                     <div class="detail-item"><strong>Status:</strong> <span class="status-tag ${status.className}">${status.text}</span></div>
                     
                     ${isEditing ? `
-                        <div class="detail-item"><strong>Nome:</strong> <input type="text" id="edit-nome" value="${aluno.nome}"></div>
-                        <div class="detail-item"><strong>Celular:</strong> <input type="text" id="edit-celular" value="${aluno.celular}"></div>
-                        <div class="detail-item"><strong>Plano:</strong> ${planosSelectHtml}</div>
+                        <div class="detail-item"><strong>Nome:</strong> <input type="text" id="edit-nome" value="${aluno.nome || ''}"></div>
+                        <div class="detail-item"><strong>Celular:</strong> <input type="text" id="edit-celular" value="${aluno.celular || ''}"></div>
+                        <div class="detail-item" style="flex-direction:column; align-items:flex-start;"><strong>Plano:</strong> <div style="margin-top:5px;width:100%">${planosSelectHtml}</div></div>
+                        <div class="detail-item" style="flex-direction:column; align-items:flex-start;"><strong>Turma:</strong> <div style="margin-top:5px;width:100%">${gradeSelectHtml}</div></div>
+                        <div class="detail-item"><strong>Vencimento:</strong> <input type="date" id="edit-vencimento" value="${aluno.proximo_pagamento || ''}" style="background-color:#4f4f4f; border:1px solid #666; color:white; padding:5px; border-radius:5px;"></div>
                     ` : `
-                        <div class="detail-item"><strong>Plano:</strong> <span>${aluno.plano}</span></div>
-                        <div class="detail-item"><strong>Celular:</strong> <span>${aluno.celular}</span></div>
+                        <div class="detail-item"><strong>Plano:</strong> ${planosSelectHtml}</div>
+                        <div class="detail-item"><strong>Celular:</strong> <span>${aluno.celular || 'N/A'}</span></div>
+                        <div class="detail-item"><strong>Turma:</strong> ${gradeSelectHtml}</div>
+                        <div class="detail-item"><strong>Vencimento Atual:</strong> <span>${aluno.proximo_pagamento ? new Date(aluno.proximo_pagamento + 'T12:00:00Z').toLocaleDateString('pt-BR') : 'N/A'}</span></div>
                     `}
-                    
-                    <div class="detail-item" style="flex-direction:column; align-items:flex-start;">
-                        <strong>Turma / Horário:</strong>
-                        <div style="margin-top:5px; width:100%">${gradeSelectHtml}</div>
-                    </div>
-                    
-                    <div class="detail-item"><strong>Vencimento Atual:</strong> <span>${new Date(aluno.proximoPagamento + 'T12:00:00Z').toLocaleDateString('pt-BR')}</span></div>
                 </div>
 
                 ${!isEditing ? `
                 <div class="payment-section">
-                    <h3 style="border-bottom:1px solid #555; padding-bottom:5px;">Registrar Pagamento / Renovar</h3>
+                    <h3 style="border-bottom:1px solid #555; padding-bottom:10px;"><i class="ph-bold ph-wallet"></i> Renovar / Pagar Mensalidade</h3>
                     <div class="payment-options">
-                        <button class="pay-btn pay-manual" onclick="processPayment('${matricula}', 'Dinheiro')">
-                            <i class="ph-bold ph-money"></i> Dinheiro
-                        </button>
-                        <button class="pay-btn pay-online" onclick="showOnlinePayment('${matricula}')">
-                            <i class="ph-bold ph-qr-code"></i> Pix Online
-                        </button>
-                        <button class="pay-btn pay-credit" onclick="processPayment('${matricula}', 'Cartão de Crédito')">
-                            <i class="ph-bold ph-credit-card"></i> C. Crédito
-                        </button>
-                        <button class="pay-btn pay-debit" onclick="processPayment('${matricula}', 'Cartão de Débito')">
-                            <i class="ph-bold ph-credit-card"></i> C. Débito
-                        </button>
+                        <button class="pay-btn pay-manual" onclick="processPayment('${aluno.matricula}', 'Dinheiro')"><i class="ph-bold ph-money"></i> Dinheiro</button>
+                        <button class="pay-btn pay-online" onclick="document.getElementById('qr-area').style.display='block'"><i class="ph-bold ph-qr-code"></i> Pix Online</button>
+                        <button class="pay-btn pay-credit" onclick="processPayment('${aluno.matricula}', 'Cartão de Crédito')"><i class="ph-bold ph-credit-card"></i> C. Crédito</button>
+                        <button class="pay-btn pay-debit" onclick="processPayment('${aluno.matricula}', 'Cartão de Débito')"><i class="ph-bold ph-credit-card"></i> C. Débito</button>
                     </div>
-                    <div id="qr-area-${matricula}" class="qr-display">
-                        <p style="margin-bottom:10px;">Escaneie para pagar via Pix:</p>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PagamentoArenaLouzada-${matricula}" alt="QR Code Pix">
-                        <br>
-                        <button class="pay-btn" style="background:#555; color:white; margin-top:10px; width: 100%;" onclick="processPayment('${matricula}', 'Pix Online')">Confirmar Pagamento Automático</button>
+                    <div id="qr-area" class="qr-display">
+                        <p style="margin-bottom:10px; color: #fff;">Escaneie para pagar via Pix:</p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PagamentoArenaLouzada-${aluno.matricula}">
+                        <br><button class="btn-edit" style="margin-top:15px; width: 100%;" onclick="processPayment('${aluno.matricula}', 'Pix Online')">Confirmar Recebimento</button>
                     </div>
                 </div>
                 ` : ''}
 
-                <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
-                    <button class="delete-btn" onclick="deleteStudent('${matricula}')"><i class="ph-bold ph-trash"></i> Excluir Aluno</button>
+                <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center;">
+                    <button class="delete-btn" onclick="deletarAlunoServidor('${aluno.matricula}')"><i class="ph-bold ph-trash"></i> Excluir Aluno</button>
                     <div>
                         ${isEditing ? 
-                            `<button class="btn-edit" onclick="saveEdit('${matricula}')">Salvar Alterações</button>` : 
-                            `<button class="btn-edit" onclick="showStudentDetailsModal('${matricula}', true)">Editar Dados</button>`
+                            `<button class="btn-edit" onclick="saveEdit('${aluno.matricula}')"><i class="ph-bold ph-floppy-disk"></i> Salvar Edição</button>` : 
+                            `<button class="btn-edit" onclick="showStudentDetailsModal('${aluno.matricula}', true)"><i class="ph-bold ph-pencil-simple"></i> Editar</button>`
                         }
                     </div>
                 </div>
             `;
-            
             modal.classList.add('active');
         }
 
-        window.saveEdit = function(matricula) {
-            let alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-            const idx = alunos.findIndex(a => a.matricula === matricula);
-            if (idx > -1) {
-                const gradeVal = document.getElementById('edit-horario').value;
-                if(gradeVal) {
-                    const [dia, hora, prof] = gradeVal.split('|');
-                    alunos[idx].diasDeAula = [dia];
-                    alunos[idx].horarioAula = hora;
-                    alunos[idx].professor = prof;
-                }
+        window.fecharModal = function() { document.getElementById('student-details-modal').classList.remove('active'); }
 
-                alunos[idx].nome = document.getElementById('edit-nome').value;
-                alunos[idx].celular = document.getElementById('edit-celular').value;
-                alunos[idx].plano = document.getElementById('edit-plano').value;
-                
-                localStorage.setItem('alunos', JSON.stringify(alunos));
-                showStudentDetailsModal(matricula, false); 
-                loadStudentList(); 
-                alert('Dados atualizados!');
+        window.processPayment = async function(matricula, metodo) {
+            const aluno = alunosGlobais.find(a => a.matricula === matricula);
+            if (!aluno) return;
+
+            if (confirm(`Confirmar o pagamento do aluno ${aluno.nome} via ${metodo}?`)) {
+                // Agora puxa o valor oficial da nuvem!
+                const planoAtual = planosGlobais.find(p => p.nome === aluno.plano);
+                const valor = planoAtual ? planoAtual.valor : 100;
+                const meses = planoAtual ? planoAtual.duracao : 1;
+
+                let dataVenc = new Date(aluno.proximo_pagamento + 'T12:00:00Z');
+                const hoje = new Date(); hoje.setHours(0,0,0,0);
+                if (dataVenc < hoje) { dataVenc = hoje; } 
+                dataVenc.setMonth(dataVenc.getMonth() + meses);
+                const novaDataStr = dataVenc.toISOString().split('T')[0];
+
+                try {
+                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` };
+                    const putResponse = await fetch(`${window.API_URL}/alunos/${matricula}`, { method: 'PUT', headers, body: JSON.stringify({ proximo_pagamento: novaDataStr }) });
+                    if (!putResponse.ok) throw new Error("Erro no PUT");
+
+                    if (valor > 0) {
+                        await fetch(`${window.API_URL}/vendas`, {
+                            method: 'POST', headers, body: JSON.stringify({
+                                data: hoje.toISOString().split('T')[0],
+                                cliente: `${aluno.nome} (Mensalidade - ${metodo})`,
+                                total: valor,
+                                itens: [{ name: `Plano ${aluno.plano || 'Base'}`, price: valor }]
+                            })
+                        });
+                    }
+                    alert(`Pagamento registado!\nNova data: ${dataVenc.toLocaleDateString('pt-BR')}`);
+                    fecharModal(); loadStudentList(); 
+                } catch (error) { alert('Erro de comunicação.'); }
             }
         }
 
-        window.deleteStudent = function(matricula) {
-            if(confirm('ATENÇÃO: Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
-                let alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-                alunos = alunos.filter(a => a.matricula !== matricula); 
-                localStorage.setItem('alunos', JSON.stringify(alunos)); 
-                
-                document.getElementById('student-details-modal').classList.remove('active'); 
-                loadStudentList(); 
-            }
-        }
+        window.saveEdit = async function(matricula) {
+            const editPlano = document.getElementById('edit-plano');
+            const planoSalvo = (editPlano && editPlano.value !== "") ? editPlano.value : "Sem Plano";
 
-        window.showOnlinePayment = function(matricula) {
-            const qrArea = document.getElementById(`qr-area-${matricula}`);
-            qrArea.style.display = 'block';
-        }
-
-        // --- LÓGICA DE PAGAMENTO INTELIGENTE (Puxando valores da Configuração) ---
-        window.processPayment = function(matricula, metodo) {
-            let alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-            const idx = alunos.findIndex(a => a.matricula === matricula);
+            const data = {
+                nome: document.getElementById('edit-nome').value,
+                celular: document.getElementById('edit-celular').value,
+                plano: planoSalvo,
+                proximo_pagamento: document.getElementById('edit-vencimento').value
+            };
             
-            if (idx > -1 && confirm(`Confirmar pagamento via ${metodo}?`)) {
-                const aluno = alunos[idx];
+            const editHorario = document.getElementById('edit-horario');
+            if(editHorario && editHorario.value) {
+                const parts = editHorario.value.split('|');
+                data.dias_aula = [parts[0]]; data.horario_aula = parts[1]; data.professor = parts[2];
+            }
+
+            try {
+                const response = await fetch(`${window.API_URL}/alunos/${matricula}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
+                    body: JSON.stringify(data)
+                });
                 
-                // Busca o plano do aluno na lista de configurações
-                const planosConfig = JSON.parse(localStorage.getItem('arenaPlanos')) || [];
-                const planoAtual = planosConfig.find(p => p.nome === aluno.plano);
-
-                let valor = 0;
-                let meses = 1;
-
-                if (planoAtual) {
-                    valor = planoAtual.valor;
-                    meses = planoAtual.duracao;
+                if (response.ok) {
+                    alert('Dados atualizados com sucesso!');
+                    fecharModal(); loadStudentList();
                 } else {
-                    alert("Aviso: O plano antigo deste aluno não existe mais nas Configurações. Renovando por 1 mês com valor zerado. Edite o plano dele depois!");
+                    alert('Erro ao gravar no servidor.');
                 }
+            } catch (e) { alert('Erro de conexão.'); }
+        }
 
-                // Cálculo da nova data
-                let dataAtual = new Date(aluno.proximoPagamento + 'T12:00:00Z');
-                const hoje = new Date();
-                if (dataAtual < hoje) { dataAtual = hoje; } // Se venceu há muito tempo, renova a partir de hoje
-                
-                dataAtual.setMonth(dataAtual.getMonth() + meses);
-
-                aluno.proximoPagamento = dataAtual.toISOString().split('T')[0];
-                aluno.status = 'Ativo';
-                localStorage.setItem('alunos', JSON.stringify(alunos));
-
-                // Lança no caixa o valor dinâmico
-                if (valor > 0) {
-                    const sale = {
-                        id: Date.now(),
-                        date: new Date().toISOString().split('T')[0],
-                        client: `${aluno.nome} (Renovação - ${metodo})`,
-                        total: valor,
-                        items: [{name: `Plano ${aluno.plano}`, price: valor}]
-                    };
-                    const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
-                    salesHistory.push(sale);
-                    localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
-                }
-
-                alert(`Pagamento registrado! Nova data de vencimento: ${dataAtual.toLocaleDateString('pt-BR')}`);
-                document.getElementById('student-details-modal').classList.remove('active');
-                loadStudentList();
+        window.deletarAlunoServidor = async function(matricula) {
+            if(confirm('Tem a certeza que deseja excluir permanentemente este aluno do Banco de Dados?')) {
+                try {
+                    await fetch(`${window.API_URL}/alunos/${matricula}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } });
+                    fecharModal(); loadStudentList();
+                } catch(e) { alert('Erro ao excluir.'); }
             }
         }
     </script>
