@@ -1,36 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aulas do Dia - Arena Louzada</title>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light);transition:opacity .4s ease-out}
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;--warning-color:#ffc400;}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{display:flex;background-color:var(--dark-bg);color:var(--text-light)}
         .app-layout{display:flex;width:100%;min-height:100vh}
         .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
         .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
         .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
         .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
-        .main-content{flex-grow:1;padding:40px;overflow-y:auto;animation:slideUpFadeIn .6s ease-out forwards}@keyframes slideUpFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}body.fade-out{opacity:0}
-        
-        .class-layout{display:grid;grid-template-columns:1fr 2fr;gap:30px}
-        @media (max-width: 900px) { .class-layout { grid-template-columns: 1fr; } }
-        .card{background-color:var(--dark-card);padding:25px;border-radius:10px}
-        .card h2{margin-bottom:20px;border-bottom:1px solid var(--border-color);padding-bottom:15px}
-        .form-group{margin-bottom:15px}.form-group label{display:block;margin-bottom:8px;font-weight:600}
-        .form-group input, .form-group select{width:100%;padding:12px;border-radius:8px;background-color:#3a3a3a;border:1px solid var(--border-color);color:var(--text-light);font-size:1rem}
-        .submit-btn{width:100%;padding:15px;border:none;border-radius:8px;background-color:var(--primary-color);color:#000;font-size:1.1rem;font-weight:bold;cursor:pointer;transition:background-color .3s}.submit-btn:hover{background-color:var(--primary-hover-color)}
-        
-        .student-selection-list{background-color:#3a3a3a;border-radius:8px;padding:15px;max-height:250px;overflow-y:auto}
-        .student-selection-list h4{margin-bottom:10px}
-        .student-selection-list .student-item{display:flex;align-items:center;margin-bottom:10px;cursor:pointer}.student-selection-list .student-item input{margin-right:10px; width: 18px; height: 18px; accent-color: var(--primary-color);}
-        .student-selection-list .student-item label { flex-grow: 1; cursor: pointer; }
-        .class-list-table{width:100%;border-collapse:collapse}.class-list-table th,.class-list-table td{padding:15px;border-bottom:1px solid var(--border-color);text-align:left}
-        .class-list-table th{color:var(--text-muted);text-transform:uppercase;font-size:.9rem}
-        .class-list-table .student-list-cell ul{padding-left:20px; margin: 0;}
-        .class-list-table .student-list-cell li { margin-bottom: 5px; }
 
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
+
+        .header-controls {display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px; background: var(--dark-card); padding: 20px; border-radius: 10px;}
+        .header-controls h1 {font-size: 1.5rem; display:flex; align-items:center; gap: 10px;}
+        .date-picker-group {display:flex; align-items:center; gap: 15px;}
+        .date-picker-group input[type="date"] {padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #3a3a3a; color: white; font-size: 1rem;}
+
+        .turmas-grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;}
+        .turma-card {background: var(--dark-card); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-top: 4px solid var(--primary-color); transition: transform 0.2s;}
+        .turma-card:hover {transform: translateY(-5px);}
+        .turma-header {padding: 15px; background: #333; display:flex; justify-content: space-between; align-items:center; border-bottom: 1px solid var(--border-color);}
+        .turma-header h3 {font-size: 1.3rem; color: var(--primary-color); display:flex; align-items:center; gap: 8px;}
+        .turma-header span {font-size: 0.9rem; color: var(--text-light); background: #222; padding: 5px 10px; border-radius: 6px; font-weight: bold;}
+        .turma-body {padding: 15px;}
+        .aluno-row {display:flex; align-items:center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #3a3a3a;}
+        .aluno-row:last-child {border-bottom: none;}
+        .aluno-row img {width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #555;}
+        .aluno-info {display:flex; flex-direction: column;}
+        .aluno-info strong {font-size: 1rem; color: #fff;}
+        .aluno-info small {font-size: 0.8rem; color: var(--text-muted);}
+
+        .empty-state {grid-column: 1 / -1; text-align: center; padding: 60px; background: var(--dark-card); border-radius: 10px; color: var(--text-muted); font-size: 1.1rem;}
     </style>
 </head>
 <body>
@@ -38,41 +44,23 @@
         <aside class="sidebar" id="sidebar"></aside>
 
         <main class="main-content">
-            <h1>Aulas do Dia</h1>
-            <p id="current-date" style="color: var(--text-muted); font-size: 1.2rem; margin-top:-5px; margin-bottom: 30px;"></p>
+            <div class="header-controls">
+                <h1><i class="ph-fill ph-chalkboard-teacher" style="color:var(--primary-color);"></i> Aulas Programadas</h1>
+                <div class="date-picker-group">
+                    <label for="data-aula" style="font-weight:bold;">Ver agenda do dia:</label>
+                    <input type="date" id="data-aula">
+                    <button onclick="carregarAulasDoDia()" style="padding: 10px 20px; background: var(--primary-color); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color:#000; transition: filter 0.2s;">
+                        <i class="ph-bold ph-magnifying-glass"></i> Procurar
+                    </button>
+                </div>
+            </div>
 
-            <div class="class-layout">
-                <div class="card">
-                    <h2>Registrar Nova Aula</h2>
-                    <form id="add-class-form">
-                        <div class="form-group">
-                            <label for="professor-name">Nome do Professor</label>
-                            <input type="text" id="professor-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="class-duration">Duração (horas)</label>
-                            <input type="number" id="class-duration" step="0.5" min="0.5" required>
-                        </div>
-                        <div class="student-selection-list">
-                            <h4>Selecione os Alunos Presentes</h4>
-                            <div id="student-selection-container">
-                                <!-- Lista de alunos ativos para seleção -->
-                            </div>
-                        </div>
-                        <button type="submit" class="submit-btn" style="margin-top: 15px;">Registrar Aula</button>
-                    </form>
-                </div>
-                <div class="card">
-                    <h2>Aulas Registradas Hoje</h2>
-                    <div style="overflow-x: auto;">
-                        <table class="class-list-table">
-                            <thead>
-                                <tr><th>Professor</th><th>Duração</th><th>Alunos Presentes</th></tr>
-                            </thead>
-                            <tbody id="registered-classes-body"></tbody>
-                        </table>
-                    </div>
-                </div>
+            <div id="dia-semana-display" style="margin-bottom: 25px; font-size: 1.3rem; font-weight: bold; color: var(--text-muted);">
+                Turmas de <span id="nome-dia" style="color: var(--text-light); text-transform: uppercase;">Hoje</span>
+            </div>
+
+            <div class="turmas-grid" id="turmas-container">
+                <div class="empty-state">A consultar a base de dados...</div>
             </div>
         </main>
     </div>
@@ -80,108 +68,129 @@
     <script src="auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const dateEl = document.getElementById('current-date');
-            const studentSelectionContainer = document.getElementById('student-selection-container');
-            const registeredClassesBody = document.getElementById('registered-classes-body');
-            const addClassForm = document.getElementById('add-class-form');
+            // Define a data de hoje automaticamente ao abrir
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('data-aula').value = `${yyyy}-${mm}-${dd}`;
 
-            function getTodayDateString() {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            const today = getTodayDateString();
-            dateEl.textContent = new Date(today + 'T12:00:00Z').toLocaleDateString('pt-BR', { dateStyle: 'full' });
-
-            let allAlunos = JSON.parse(localStorage.getItem('alunos')) || [];
-            
-            function loadStudentSelection() {
-                studentSelectionContainer.innerHTML = '';
-                const alunosAtivos = allAlunos.filter(a => a.status === 'Ativo');
-
-                if (alunosAtivos.length === 0) {
-                    studentSelectionContainer.innerHTML = '<p style="color: var(--text-muted);">Nenhum aluno ativo encontrado.</p>';
-                    return;
-                }
-                
-                alunosAtivos.forEach(aluno => {
-                    const item = document.createElement('div');
-                    item.className = 'student-item';
-                    item.innerHTML = `
-                        <label>
-                            <input type="checkbox" name="present-student" value="${aluno.matricula}">
-                            ${aluno.nome}
-                        </label>
-                    `;
-                    studentSelectionContainer.appendChild(item);
-                });
-            }
-            
-            function loadRegisteredClasses() {
-                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
-                const aulasHoje = aulas[today] || [];
-                registeredClassesBody.innerHTML = '';
-                
-                if (aulasHoje.length === 0) {
-                    registeredClassesBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhuma aula registrada hoje.</td></tr>';
-                    return;
-                }
-                
-                aulasHoje.forEach(aula => {
-                    const row = document.createElement('tr');
-                    const studentNames = aula.alunos.map(aluno => `<li>${aluno.nome}</li>`).join('');
-                    row.innerHTML = `
-                        <td>${aula.professor}</td>
-                        <td>${aula.duracao}h</td>
-                        <td class="student-list-cell"><ul>${studentNames || '<li>Nenhum aluno selecionado</li>'}</ul></td>
-                    `;
-                    registeredClassesBody.appendChild(row);
-                });
-            }
-
-            addClassForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const professor = document.getElementById('professor-name').value;
-                const duracao = document.getElementById('class-duration').value;
-                
-                const selectedCheckboxes = studentSelectionContainer.querySelectorAll('input[type="checkbox"]:checked');
-                const alunosPresentesNaAula = Array.from(selectedCheckboxes).map(checkbox => {
-                    return allAlunos.find(a => a.matricula === checkbox.value);
-                }).filter(Boolean);
-
-                if (alunosPresentesNaAula.length === 0) {
-                    alert('Por favor, selecione pelo menos um aluno para registrar a aula.');
-                    return;
-                }
-
-                const newAula = {
-                    id: Date.now(),
-                    professor,
-                    duracao,
-                    alunos: alunosPresentesNaAula.map(a => ({ matricula: a.matricula, nome: a.nome }))
-                };
-
-                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
-                if (!aulas[today]) {
-                    aulas[today] = [];
-                }
-                aulas[today].push(newAula);
-                localStorage.setItem('aulas', JSON.stringify(aulas));
-
-                loadRegisteredClasses();
-                addClassForm.reset();
-                selectedCheckboxes.forEach(cb => cb.checked = false);
-            });
-
-            // Initial Load
-            loadStudentSelection();
-            loadRegisteredClasses();
+            // Aciona a pesquisa
+            carregarAulasDoDia();
         });
+
+        // Função para descobrir qual é o dia da semana a partir da data
+        function getDiaSemanaExtenso(dataString) {
+            const [y, m, d] = dataString.split('-');
+            const data = new Date(y, m - 1, d);
+            const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            return dias[data.getDay()];
+        }
+
+        async function carregarAulasDoDia() {
+            const dataEscolhida = document.getElementById('data-aula').value;
+            if (!dataEscolhida) return;
+
+            const diaSemana = getDiaSemanaExtenso(dataEscolhida);
+            document.getElementById('nome-dia').textContent = diaSemana;
+
+            const container = document.getElementById('turmas-container');
+            container.innerHTML = '<div class="empty-state">A consultar a base de dados do Python...</div>';
+
+            try {
+                // Vai buscar a lista de todos os alunos ao servidor
+                const response = await fetch(`${window.API_URL}/alunos`, {
+                    headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const todosAlunos = await response.json();
+                    
+                    // Vai separar e organizar os alunos pelas Turmas correspondentes
+                    const turmasMap = {};
+
+                    todosAlunos.forEach(aluno => {
+                        // Tratamento de segurança para ler os dias da semana corretamente
+                        let diasArray = [];
+                        try {
+                            if (typeof aluno.dias_aula === 'string') {
+                                diasArray = JSON.parse(aluno.dias_aula);
+                            } else if (Array.isArray(aluno.dias_aula)) {
+                                diasArray = aluno.dias_aula;
+                            }
+                        } catch(e) {}
+
+                        // Se o aluno tem aula no dia selecionado, entra na lista!
+                        if (diasArray.includes(diaSemana)) {
+                            const chaveTurma = `${aluno.horario_aula || 'Sem Hora'}|${aluno.professor || 'Sem Professor'}`;
+                            
+                            if (!turmasMap[chaveTurma]) {
+                                turmasMap[chaveTurma] = {
+                                    horario: aluno.horario_aula,
+                                    professor: aluno.professor,
+                                    alunos: []
+                                };
+                            }
+                            turmasMap[chaveTurma].alunos.push(aluno);
+                        }
+                    });
+
+                    // Construção visual das turmas no ecrã
+                    const chaves = Object.keys(turmasMap);
+                    container.innerHTML = '';
+
+                    if (chaves.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="ph-fill ph-calendar-blank" style="font-size: 4rem; margin-bottom: 15px; display:block; color: #444;"></i>
+                                Nenhuma aula programada ou alunos inscritos para <b>${diaSemana}</b>.
+                            </div>`;
+                        return;
+                    }
+
+                    // Ordena os cartões pela hora mais cedo primeiro
+                    chaves.sort((a, b) => turmasMap[a].horario.localeCompare(turmasMap[b].horario));
+
+                    chaves.forEach(chave => {
+                        const turma = turmasMap[chave];
+                        
+                        let alunosHtml = '';
+                        turma.alunos.forEach(a => {
+                            alunosHtml += `
+                                <div class="aluno-row">
+                                    <img src="${a.foto_url || 'https://placehold.co/40x40/2c2c2c/f0f0f0?text=' + a.nome.charAt(0)}" alt="Foto do aluno">
+                                    <div class="aluno-info">
+                                        <strong>${a.nome}</strong>
+                                        <small>Plano: ${a.plano || 'N/A'}</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        const div = document.createElement('div');
+                        div.className = 'turma-card';
+                        div.innerHTML = `
+                            <div class="turma-header">
+                                <h3><i class="ph-bold ph-clock"></i> ${turma.horario || '--:--'}</h3>
+                                <span>${turma.professor || 'Prof. Indefinido'}</span>
+                            </div>
+                            <div class="turma-body">
+                                <div style="margin-bottom: 15px; font-size: 0.85rem; color: var(--primary-color); font-weight: bold; text-transform: uppercase;">
+                                    ${turma.alunos.length} Aluno(s) Esperado(s)
+                                </div>
+                                ${alunosHtml}
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+
+                } else {
+                    container.innerHTML = '<div class="empty-state" style="color:red;">Erro ao aceder à base de dados. Verifique a internet.</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state" style="color:red;">Erro de ligação ao servidor Python.</div>';
+            }
+        }
     </script>
 </body>
 </html>
-
