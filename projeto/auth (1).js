@@ -1,8 +1,14 @@
-// --- AUTH SCRIPT ---
-const currentUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+// --- AUTH SCRIPT (CONECTADO AO PYTHONANYWHERE) ---
+
+// Define o endereço do seu servidor oficial na nuvem
+const API_URL = 'https://jaozinpagod.pythonanywhere.com';
+window.API_URL = API_URL; // Deixa global para as outras páginas usarem
+
+const token = sessionStorage.getItem('token');
+const userRole = sessionStorage.getItem('userRole');
 const forceLogoutData = JSON.parse(localStorage.getItem('forceLogout'));
 
-// 1. Definição das permissões
+// 1. Definição das permissões de cada perfil
 const permissions = {
     'CEO': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html', 'configuracoes.html'],
     'Administrador': ['dashboard.html', 'alunos.html', 'presenca.html', 'aulas.html', 'vendas.html', 'financas.html', 'usuarios.html', 'configuracoes.html'],
@@ -10,26 +16,25 @@ const permissions = {
     'Vendedor': ['vendas.html']
 };
 
-if (!currentUser) {
-    window.location.href = 'login.html';
-} else if (forceLogoutData && currentUser.id !== forceLogoutData.adminId) {
-    const lastLoginTime = currentUser.loginTimestamp || 0;
-    if (forceLogoutData.timestamp > lastLoginTime) {
-        sessionStorage.removeItem('loggedInUser');
-        window.location.href = 'login.html';
+// 2. Verificação de Segurança (Agora checa o Token do servidor)
+if (!token) {
+    if (!window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('login.html') && window.location.pathname !== '/') {
+         window.location.href = 'index.html';
     }
 } else {
-    const userPermissions = permissions[currentUser.role] || [];
+    // Verifica permissões
+    const userPermissions = permissions[userRole] || [];
     const currentPage = window.location.pathname.split('/').pop();
-    if (userPermissions.length > 0 && !userPermissions.includes(currentPage)) {
-        window.location.href = userPermissions[0];
-    } else if (userPermissions.length === 0 && !userPermissions.includes(currentPage)) {
-        sessionStorage.removeItem('loggedInUser');
-        window.location.href = 'login.html';
+    
+    // Se a página não é o login/index, verifica se tem acesso
+    if (currentPage !== 'index.html' && currentPage !== 'login.html') {
+        if (userPermissions.length > 0 && !userPermissions.includes(currentPage)) {
+            window.location.href = userPermissions[0];
+        }
     }
 }
 
-// 3. Estrutura do menu (Configurações adicionado no final)
+// 3. Estrutura do menu
 const menuItems = [
     { name: 'Início', href: 'dashboard.html', icon: 'ph-house' },
     { name: 'Alunos', href: 'alunos.html', icon: 'ph-users' },
@@ -41,18 +46,19 @@ const menuItems = [
     { name: 'Configurações', href: 'configuracoes.html', icon: 'ph-gear' }
 ];
 
+// 4. Função para gerar o menu lateral
 function generateSidebar() {
     const sidebar = document.getElementById('sidebar');
-    if (!sidebar || !currentUser) return;
+    if (!sidebar || !token) return;
 
-    const userPermissions = permissions[currentUser.role] || [];
+    const userPermissions = permissions[userRole] || [];
     const currentPage = window.location.pathname.split('/').pop();
 
     let menuHtml = `
         <div class="sidebar-header">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNV8dxYF7dGp6TSUvr5KLLddCultBUPuo8XA&s" alt="Logo Arena Louzada">
             <h2>ARENA LOUZADA</h2>
-            <p style="color: var(--text-muted); margin-top: 5px;">(${currentUser.role})</p>
+            <p style="color: var(--text-muted); margin-top: 5px;">(${userRole})</p>
         </div>
         <nav class="nav-menu">
     `;
@@ -68,8 +74,9 @@ function generateSidebar() {
     sidebar.innerHTML = menuHtml;
     
     document.getElementById('logout-btn').addEventListener('click', () => {
-        sessionStorage.removeItem('loggedInUser');
-        window.location.href = 'login.html';
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userRole');
+        window.location.href = 'index.html'; // Garante que volta para a tela inicial
     });
 }
 
