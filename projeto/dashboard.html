@@ -5,112 +5,269 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Arena Louzada</title>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;}*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body{display:flex;background-color:var(--dark-bg);color:var(--text-light);transition:opacity .4s ease-out}
-        .app-layout{display:flex;width:100%;min-height:100vh}
-        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color)}
+        :root{--primary-color:#ffc400;--primary-hover-color:#e6b000;--dark-bg:#1a1a1a;--dark-card:#2c2c2c;--text-light:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444;--success-color:#28a745;--danger-color:#e74c3c;--warning-color:#ffc400;}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{display:flex;background-color:var(--dark-bg);color:var(--text-light); overflow: hidden;}
+        .app-layout{display:flex;width:100%;height:100vh}
         
-        /* ESTILOS ADICIONADOS */
-        .sidebar-header{text-align:center;margin-bottom:40px}.sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
+        /* Sidebar Styles */
+        .sidebar{width:240px;background-color:var(--dark-card);padding:20px;display:flex;flex-direction:column;border-right:1px solid var(--border-color); flex-shrink: 0;}
+        .sidebar-header{text-align:center;margin-bottom:40px}
+        .sidebar-header img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);margin-bottom:10px}
         .sidebar-header h2{font-size:1.2rem;color:var(--text-light)}
-        .nav-menu{flex-grow:1}.nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}.nav-menu a i{font-size:1.5rem;margin-right:15px}.nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+        .nav-menu{flex-grow:1}
+        .nav-menu a{display:flex;align-items:center;padding:15px;margin-bottom:10px;border-radius:8px;text-decoration:none;color:var(--text-muted);font-weight:600;transition:background-color .3s,color .3s}
+        .nav-menu a i{font-size:1.5rem;margin-right:15px}
+        .nav-menu a.active,.nav-menu a:hover{background-color:var(--primary-color);color:#000}
+
+        .main-content{flex-grow:1;padding:40px;overflow-y:auto}
         
-        .main-content{flex-grow:1;padding:40px;overflow-y:auto;animation:slideUpFadeIn .6s ease-out forwards}@keyframes slideUpFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .dashboard-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px}
-        .summary-card-link{text-decoration:none;color:inherit}
-        .summary-card{background-color:var(--dark-card);padding:25px;border-radius:10px;border-left:5px solid var(--primary-color); transition: background-color 0.3s;}.summary-card:hover{background-color:#3a3a3a}
-        .summary-card i{font-size:2.5rem;color:var(--primary-color);margin-bottom:15px}.summary-card h3{color:var(--text-muted);margin-bottom:5px;font-size:1rem;text-transform:uppercase}
-        .summary-card p{font-size:2rem;font-weight:bold;color:var(--text-light)}
-        .summary-card.danger { border-left-color: var(--danger-color); }
-        .summary-card.danger i { color: var(--danger-color); }
+        /* Header */
+        .header-section{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+        .header-title h1{font-size: 2rem; margin-bottom: 5px;}
+        .header-title p{color: var(--text-muted); font-size: 1.1rem;}
+
+        /* Premium Dashboard Cards */
+        .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:25px;margin-bottom:40px}
+        .metric-card{background-color:var(--dark-card);padding:25px;border-radius:15px;display:flex;align-items:center;gap:20px;box-shadow:0 8px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease;}
+        .metric-card:hover{transform:translateY(-5px);}
+        .metric-icon{width:65px;height:65px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#fff}
+        
+        .icon-yellow{background-color:rgba(255, 196, 0, 0.1); color:var(--primary-color);}
+        .icon-green{background-color:rgba(40, 167, 69, 0.1); color:var(--success-color);}
+        .icon-blue{background-color:rgba(0, 153, 255, 0.1); color:#0099ff;}
+        .icon-purple{background-color:rgba(155, 89, 182, 0.1); color:#9b59b6;}
+
+        .metric-info h3{color:var(--text-muted);font-size:0.9rem;font-weight:600;margin-bottom:5px;text-transform:uppercase; letter-spacing: 1px;}
+        .metric-info p{font-size:2rem;font-weight:bold;color:var(--text-light)}
+
+        /* Charts and Tables Area */
+        .dashboard-body{display:grid;grid-template-columns:2fr 1fr;gap:25px;}
+        @media(max-width:1024px){.dashboard-body{grid-template-columns:1fr;}}
+        
+        .panel{background-color:var(--dark-card);padding:30px;border-radius:15px;box-shadow:0 8px 20px rgba(0,0,0,0.15);}
+        .panel h3{margin-bottom:25px;color:var(--text-light);font-size:1.3rem;display:flex;align-items:center;gap:10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
+
+        /* Modern Table Styles */
+        .data-table{width:100%;border-collapse:collapse;text-align:left;}
+        .data-table th, .data-table td{padding:15px;border-bottom:1px solid var(--border-color)}
+        .data-table th{font-size:0.85rem;text-transform:uppercase;color:var(--text-muted);font-weight:700; letter-spacing: 0.5px;}
+        .data-table tbody tr{transition: background-color 0.2s;}
+        .data-table tbody tr:hover{background-color:#333;}
+        .tag{padding:6px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;color:#fff;}
+        .tag.success{background-color:var(--success-color);}
     </style>
 </head>
 <body>
     <div class="app-layout">
         <aside class="sidebar" id="sidebar"></aside>
-
+        
         <main class="main-content">
-            <h1>Dashboard</h1>
-            <p style="color: var(--text-muted); font-size: 1.2rem; margin-top:-5px; margin-bottom: 30px;">Resumo das atividades de hoje</p>
-            <div class="dashboard-summary">
-                <div class="summary-card">
-                    <i class="ph-fill ph-chart-line-up"></i>
-                    <h3>Faturamento de Hoje</h3>
-                    <p id="faturamento-hoje">R$ 0,00</p>
+            <div class="header-section">
+                <div class="header-title">
+                    <h1>Visão Geral da Arena</h1>
+                    <p>Bem-vindo de volta! Aqui está o resumo atualizado em tempo real.</p>
                 </div>
-                <div class="summary-card">
-                    <i class="ph-fill ph-list-checks"></i>
-                    <h3>Vendas de Hoje</h3>
-                    <p id="vendas-hoje">0</p>
+                <div style="background: var(--dark-card); padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--success-color);">
+                    <div style="width: 10px; height: 10px; background: var(--success-color); border-radius: 50%; box-shadow: 0 0 10px var(--success-color);"></div>
+                    <span style="font-weight: bold; color: var(--success-color);">Sistema Online (Nuvem)</span>
                 </div>
-                <div class="summary-card">
-                    <i class="ph-fill ph-student"></i>
-                    <h3>Presença Diária</h3>
-                    <p id="presenca-hoje">0</p>
-                </div>
-                 <div class="summary-card">
-                    <i class="ph-fill ph-chalkboard-teacher"></i>
-                    <h3>Aulas Registradas Hoje</h3>
-                    <p id="aulas-hoje">0</p>
-                </div>
-                 <a href="alunos.html?filtro=vencido" class="summary-card-link">
-                    <div class="summary-card danger">
-                        <i class="ph-fill ph-warning-circle"></i>
-                        <h3>Mensalidades Abertas</h3>
-                        <p id="mensalidades-abertas">0</p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon icon-yellow"><i class="ph-fill ph-users"></i></div>
+                    <div class="metric-info">
+                        <h3>Total de Alunos</h3>
+                        <p id="total-alunos">--</p>
                     </div>
-                 </a>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon icon-green"><i class="ph-fill ph-currency-dollar"></i></div>
+                    <div class="metric-info">
+                        <h3>Faturamento (Mês)</h3>
+                        <p id="faturamento-mes">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon icon-blue"><i class="ph-fill ph-shopping-cart"></i></div>
+                    <div class="metric-info">
+                        <h3>Vendas Hoje</h3>
+                        <p id="vendas-hoje">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon icon-purple"><i class="ph-fill ph-user-check"></i></div>
+                    <div class="metric-info">
+                        <h3>Alunos Ativos</h3>
+                        <p id="alunos-ativos">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-body">
+                <div class="panel">
+                    <h3><i class="ph-fill ph-receipt" style="color: var(--primary-color);"></i> Últimas Vendas Realizadas</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-sales-body">
+                                <tr><td colspan="4" style="text-align:center; padding: 30px; color: #888;">A carregar dados do servidor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3><i class="ph-fill ph-chart-pie-slice" style="color: var(--primary-color);"></i> Distribuição de Planos</h3>
+                    <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+                        <canvas id="planosChart"></canvas>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
     <script src="auth.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            function getTodayDateString() {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            await carregarDadosCompletos();
+        });
 
-            function loadDashboardData() {
-                const todayString = getTodayDateString();
+        async function carregarDadosCompletos() {
+            try {
+                const headers = { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` };
                 
-                const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
-                const salesToday = salesHistory.filter(sale => sale.date === todayString);
-                const faturamentoHoje = salesToday.reduce((sum, sale) => sum + sale.total, 0);
-                document.getElementById('faturamento-hoje').textContent = `R$ ${faturamentoHoje.toFixed(2).replace('.', ',')}`;
-                document.getElementById('vendas-hoje').textContent = salesToday.length;
+                // Vai buscar os dados ao servidor Python (ambos ao mesmo tempo para ser mais rápido)
+                const [alunosRes, vendasRes] = await Promise.all([
+                    fetch(`${window.API_URL}/alunos`, { headers }),
+                    fetch(`${window.API_URL}/vendas`, { headers })
+                ]);
 
-                const presencas = JSON.parse(localStorage.getItem('presencas')) || [];
-                const presencasHoje = presencas[todayString] || [];
-                document.getElementById('presenca-hoje').textContent = presencasHoje.length;
+                const alunos = alunosRes.ok ? await alunosRes.json() : [];
+                const vendas = vendasRes.ok ? await vendasRes.json() : [];
+
+                // 1. Processar Métricas de Alunos
+                const totalAlunos = alunos.length;
+                const alunosAtivos = alunos.filter(a => a.status === 'Ativo').length;
                 
-                const aulas = JSON.parse(localStorage.getItem('aulas')) || {};
-                const aulasHoje = aulas[todayString] || [];
-                document.getElementById('aulas-hoje').textContent = aulasHoje.length;
+                // 2. Processar Métricas Financeiras
+                const hojeStr = new Date().toISOString().split('T')[0]; // Ex: 2026-02-26
+                const mesAtual = hojeStr.substring(0, 7); // Ex: 2026-02
+                
+                let faturamentoMes = 0;
+                let vendasHoje = 0;
 
-                const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
-                let mensalidadesAbertas = 0;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                alunos.forEach(aluno => {
-                    if (aluno.proximoPagamento) {
-                        const dueDate = new Date(aluno.proximoPagamento + 'T12:00:00Z');
-                        if (dueDate < today) {
-                            mensalidadesAbertas++;
-                        }
+                vendas.forEach(v => {
+                    // Soma se a venda for deste mês
+                    if (v.data.startsWith(mesAtual)) {
+                        faturamentoMes += v.total;
+                    }
+                    // Soma se a venda for de hoje
+                    if (v.data === hojeStr) {
+                        vendasHoje += v.total;
                     }
                 });
-                document.getElementById('mensalidades-abertas').textContent = mensalidadesAbertas;
+
+                // 3. Atualizar os Cartões no ecrã
+                document.getElementById('total-alunos').textContent = totalAlunos;
+                document.getElementById('alunos-ativos').textContent = alunosAtivos;
+                document.getElementById('faturamento-mes').textContent = `R$ ${faturamentoMes.toFixed(2).replace('.', ',')}`;
+                document.getElementById('vendas-hoje').textContent = `R$ ${vendasHoje.toFixed(2).replace('.', ',')}`;
+
+                // 4. Preencher a Tabela de Últimas Vendas
+                const tbody = document.getElementById('recent-sales-body');
+                tbody.innerHTML = '';
+                
+                if (vendas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhuma venda registada.</td></tr>';
+                } else {
+                    // Pega nas últimas 5 vendas e inverte a ordem para mostrar as mais recentes primeiro
+                    const ultimasVendas = vendas.slice(-5).reverse();
+                    
+                    ultimasVendas.forEach(v => {
+                        const dataFormatada = v.data.split('-').reverse().join('/');
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${dataFormatada}</td>
+                            <td><strong>${v.cliente || 'Cliente Avulso'}</strong></td>
+                            <td style="color:var(--success-color); font-weight:bold;">R$ ${v.total.toFixed(2).replace('.', ',')}</td>
+                            <td><span class="tag success">Concluído</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // 5. Renderizar o Gráfico de Planos
+                renderizarGraficoPlanos(alunos);
+
+            } catch (error) {
+                console.error("Erro ao carregar dashboard:", error);
+                document.getElementById('recent-sales-body').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Erro de ligação ao servidor.</td></tr>';
+            }
+        }
+
+        function renderizarGraficoPlanos(alunos) {
+            // Conta quantos alunos existem em cada plano
+            const contagemPlanos = {};
+            alunos.forEach(aluno => {
+                const nomePlano = aluno.plano || 'Sem Plano';
+                contagemPlanos[nomePlano] = (contagemPlanos[nomePlano] || 0) + 1;
+            });
+
+            const nomesDosPlanos = Object.keys(contagemPlanos);
+            const quantidades = Object.values(contagemPlanos);
+
+            // Se não houver alunos, mostra um gráfico vazio
+            if (nomesDosPlanos.length === 0) {
+                nomesDosPlanos.push('Sem Dados');
+                quantidades.push(1);
             }
 
-            loadDashboardData();
-        });
+            const ctx = document.getElementById('planosChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: nomesDosPlanos,
+                    datasets: [{
+                        data: quantidades,
+                        backgroundColor: [
+                            '#ffc400', // Amarelo Arena
+                            '#0099ff', // Azul
+                            '#28a745', // Verde
+                            '#9b59b6', // Roxo
+                            '#e74c3c'  // Vermelho
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f0f0f0',
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    cutout: '75%' // Deixa o buraco no meio maior e mais elegante
+                }
+            });
+        }
     </script>
 </body>
 </html>
-
